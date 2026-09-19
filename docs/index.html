@@ -411,6 +411,15 @@
     @keyframes ep-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
     .ep-body { padding: 1.5rem; display: grid; gap: 1rem; }
+    .ep-caption {
+      font-size: 0.8125rem; line-height: 1.55;
+      color: var(--text-2);
+      margin-bottom: 0.25rem;
+    }
+    .ep-caption code {
+      font-family: var(--mono); font-size: 0.75rem;
+      color: var(--action);
+    }
 
     /* case row */
     .case-row {
@@ -911,6 +920,11 @@
         </div>
 
         <div class="ep-body">
+          <p class="ep-caption">
+            Every case produces a confidence score and, when signals trip, a defect-weight breakdown.
+            The same payload arrives in your webhook — here it is rendered, not described.
+          </p>
+
           <!-- PASS -->
           <article class="case-row pass">
             <div class="cr-id">
