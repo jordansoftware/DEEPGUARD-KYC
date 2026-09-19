@@ -1,0 +1,37 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8765:8765"
+    volumes:
+      - backend-data:/app/data
+    environment:
+      - DEEP_GUARD_ALLOW_ANON=false
+      - DEEP_GUARD_SECRET_KEY=${DEEP_GUARD_SECRET_KEY:-}
+      - DG_WEBHOOK_SECRET=${DG_WEBHOOK_SECRET:-}
+      - CORS_ORIGINS=http://localhost:3000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8765/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - deepguard-net
+
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - deepguard-net
+
+volumes:
+  backend-data:
+
+networks:
+  deepguard-net:
+    driver: bridge

@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "deepguard"
+version = "0.1.0"
+description = "Open-source KYC with forensic image analysis, face matching, OCR, and decision engine"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [{ name = "DeepGuard Contributors" }]
+keywords = ["kyc", "identity", "forensic", "face-matching", "ocr", "deepfake", "verification"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+
+dependencies = [
+    # Core
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.0",
+    "sqlalchemy>=2.0",
+    "httpx>=0.27",
+
+    # Image forensics
+    "pillow>=10",
+    "numpy>=1.26",
+
+    # OCR
+    "python-doctr>=1.0",
+
+    # Face matching
+    "deepface>=0.0.90",
+    "opencv-python>=4.8",
+
+    # AML screening
+    "rapidfuzz>=3.0",
+
+    # PDF reports
+    "reportlab>=4.0",
+
+    # Utils
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+]
+all = [
+    "deepguard[dev]",
+]
+
+[project.urls]
+Homepage = "https://github.com/jordansoftware/deepguard"
+Documentation = "https://github.com/jordansoftware/deepguard#readme"
+Repository = "https://github.com/jordansoftware/deepguard"
+Issues = "https://github.com/jordansoftware/deepguard/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["deepguard"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

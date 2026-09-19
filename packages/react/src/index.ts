@@ -1,0 +1,6 @@
+export { DeepGuardProvider, useDeepGuard } from './provider'
+export { AnalysisUploader } from './analysis-uploader'
+export { FaceMatcher } from './face-matcher'
+export { LivenessCheck } from './liveness-check'
+export { ResultsTable } from './results-table'
+export type { AnalysisResult, FaceMatchResult, LivenessResult, DeepGuardConfig } from './types'

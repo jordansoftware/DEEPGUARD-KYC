@@ -1,0 +1,35 @@
+{
+  "name": "@deepguard/react",
+  "version": "0.1.0",
+  "description": "React components for DeepGuard KYC integration",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite build --watch"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.0",
+    "react-dropzone": "^14.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0",
+    "@types/react-dom": "^19.0",
+    "react": "^19.0",
+    "react-dom": "^19.0",
+    "typescript": "^5.6",
+    "vite": "^6.0",
+    "vite-plugin-dts": "^4.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jordansoftware/deepguard",
+    "directory": "packages/react"
+  }
+}

@@ -1,0 +1,16 @@
+__pycache__
+.venv
+node_modules
+.next
+data/
+*.pyc
+.env
+.env.*
+!.env.example
+/tmp/
+.DS_Store
+*.log
+coverage/
+.htmlcov
+.claude/
+.opencode/
