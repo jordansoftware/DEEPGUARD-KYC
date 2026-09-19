@@ -661,6 +661,51 @@
       .eb-case .cr-verdict { justify-self: start; }
     }
 
+    /* ---------- Velocity marquee (Scroll Based Velocity, ported to vanilla) ---------- */
+    .sbv-marquee {
+      margin-top: var(--section);
+      padding: 2.5rem 0;
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: oklch(0.165 0.007 260 / 0.45);
+    }
+    .sbv-marquee + .sbv-marquee { margin-top: 0; }
+    .sbv-row {
+      display: flex;
+      will-change: transform;
+      user-select: none;
+    }
+    .sbv-chunk {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+    }
+    .sbv-chunk span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0 1.5rem;
+      font-family: var(--mono);
+      font-size: clamp(1.1rem, 0.8rem + 1.2vw, 1.75rem);
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      color: var(--text-2);
+    }
+    .sbv-chunk .sep {
+      color: var(--action);
+      font-weight: 400;
+      opacity: 0.55;
+    }
+    .sbv-marquee[data-variant="caps"] .sbv-chunk span {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
     /* ---------- Metrics ---------- */
     .metrics {
       display: grid;
@@ -809,6 +854,7 @@
       .eb-verdict-main .vm-fill { width: 94% !important; }
       .eb-cases .cr-fill { width: var(--w) !important; }
       .eb-defects .d-bar span { width: var(--w) !important; }
+      .sbv-row { transform: none !important; }
     }
   </style>
 </head>
@@ -882,6 +928,21 @@
       </div>
     </div>
   </section>
+
+  <!-- ================= VELOCITY MARQUEE · TECH ================= -->
+  <div class="sbv-marquee" data-sbv data-variant="tech" data-base="5" data-dir="1" aria-hidden="true">
+    <div class="sbv-row">
+      <div class="sbv-chunk">
+        <span>MELA <span class="sep">/</span> ELA <span class="sep">/</span> Noise <span class="sep">/</span> EXIF <span class="sep">/</span> Heatmaps <span class="sep">/</span> DocTR OCR <span class="sep">/</span> MRZ <span class="sep">/</span> ISO 18013 <span class="sep">/</span> DeepFace <span class="sep">/</span> Liveness <span class="sep">/</span> OFAC <span class="sep">/</span> UN <span class="sep">/</span> EU Sanctions <span class="sep">/</span> HMAC-SHA256 <span class="sep">/</span> FastAPI <span class="sep">/</span> React <span class="sep">/</span> Docker <span class="sep">/</span> </span>
+      </div>
+      <div class="sbv-chunk" aria-hidden="true">
+        <span>MELA <span class="sep">/</span> ELA <span class="sep">/</span> Noise <span class="sep">/</span> EXIF <span class="sep">/</span> Heatmaps <span class="sep">/</span> DocTR OCR <span class="sep">/</span> MRZ <span class="sep">/</span> ISO 18013 <span class="sep">/</span> DeepFace <span class="sep">/</span> Liveness <span class="sep">/</span> OFAC <span class="sep">/</span> UN <span class="sep">/</span> EU Sanctions <span class="sep">/</span> HMAC-SHA256 <span class="sep">/</span> FastAPI <span class="sep">/</span> React <span class="sep">/</span> Docker <span class="sep">/</span> </span>
+      </div>
+      <div class="sbv-chunk" aria-hidden="true">
+        <span>MELA <span class="sep">/</span> ELA <span class="sep">/</span> Noise <span class="sep">/</span> EXIF <span class="sep">/</span> Heatmaps <span class="sep">/</span> DocTR OCR <span class="sep">/</span> MRZ <span class="sep">/</span> ISO 18013 <span class="sep">/</span> DeepFace <span class="sep">/</span> Liveness <span class="sep">/</span> OFAC <span class="sep">/</span> UN <span class="sep">/</span> EU Sanctions <span class="sep">/</span> HMAC-SHA256 <span class="sep">/</span> FastAPI <span class="sep">/</span> React <span class="sep">/</span> Docker <span class="sep">/</span> </span>
+      </div>
+    </div>
+  </div>
 
   <!-- ================= FEATURES ================= -->
   <section class="section" id="features">
@@ -1148,6 +1209,21 @@
     </div>
   </section>
 
+  <!-- ================= VELOCITY MARQUEE · USE-CASES ================= -->
+  <div class="sbv-marquee" data-sbv data-variant="caps" data-base="4" data-dir="-1" aria-hidden="true">
+    <div class="sbv-row">
+      <div class="sbv-chunk">
+        <span>DeFi On-Ramps <span class="sep">◆</span> Crypto Exchanges <span class="sep">◆</span> Lending Protocols <span class="sep">◆</span> Remittances <span class="sep">◆</span> Marketplaces <span class="sep">◆</span> Freelance Platforms <span class="sep">◆</span> Gaming Wallets <span class="sep">◆</span> NFT Mints <span class="sep">◆</span> </span>
+      </div>
+      <div class="sbv-chunk" aria-hidden="true">
+        <span>DeFi On-Ramps <span class="sep">◆</span> Crypto Exchanges <span class="sep">◆</span> Lending Protocols <span class="sep">◆</span> Remittances <span class="sep">◆</span> Marketplaces <span class="sep">◆</span> Freelance Platforms <span class="sep">◆</span> Gaming Wallets <span class="sep">◆</span> NFT Mints <span class="sep">◆</span> </span>
+      </div>
+      <div class="sbv-chunk" aria-hidden="true">
+        <span>DeFi On-Ramps <span class="sep">◆</span> Crypto Exchanges <span class="sep">◆</span> Lending Protocols <span class="sep">◆</span> Remittances <span class="sep">◆</span> Marketplaces <span class="sep">◆</span> Freelance Platforms <span class="sep">◆</span> Gaming Wallets <span class="sep">◆</span> NFT Mints <span class="sep">◆</span> </span>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= USE CASES ================= -->
   <section class="section" id="use-cases">
     <div class="container">
@@ -1252,6 +1328,7 @@
   </footer>
 
   <script>
+    // ---- Scroll-reveal for engine bars ----
     const io = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         if (entry.isIntersecting) {
@@ -1261,6 +1338,108 @@
       }
     }, { threshold: 0.25 });
     document.querySelectorAll('.eb-verdict-main, .eb-cases, .eb-defects').forEach((el) => io.observe(el));
+
+    /* ============================================================
+       Scroll Based Velocity (Magic UI) — ported to vanilla JS
+       Replicates motion/react useScroll + useVelocity + useSpring +
+       useAnimationFrame: row speed reacts to page scroll velocity.
+       ============================================================ */
+    (function () {
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Exponential spring (matches motion's useSpring defaults: damping 50, stiffness 400)
+      function makeSpring() {
+        let value = 0, velocity = 0;
+        let lastTime = performance.now();
+        const stiffness = 400, damping = 50;
+        return {
+          get: () => value,
+          set: (v) => { value = v; },
+          update: (now) => {
+            const dt = Math.min(0.064, (now - lastTime) / 1000);
+            lastTime = now;
+            const force = -stiffness * value - damping * velocity;
+            velocity += force * dt;
+            value += velocity * dt;
+            if (Math.abs(value) < 0.0001 && Math.abs(velocity) < 0.0001) { value = 0; velocity = 0; }
+            return value;
+          },
+        };
+      }
+
+      document.querySelectorAll('[data-sbv]').forEach((marquee) => {
+        const row = marquee.querySelector('.sbv-row');
+        const chunks = Array.from(row.children);
+        const baseVelocity = parseFloat(marquee.dataset.base || '5');
+        const direction = parseInt(marquee.dataset.dir || '1', 10);
+        if (!row || chunks.length === 0) return;
+
+        // measure one chunk's width (px)
+        const unitWidth = chunks[0].getBoundingClientRect().width || 1;
+        let baseX = 0;
+        const spring = makeSpring();
+        let lastScroll = window.scrollY;
+        let lastT = performance.now();
+        let rafId = null;
+        let started = false;
+
+        const wrap = (min, max, v) => {
+          const range = max - min;
+          return ((((v - min) % range) + range) % range) + min;
+        };
+
+        // only run the rAF loop while the marquee is on-screen (IntersectionObserver)
+        let inView = false;
+        const rowIO = new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; }, { rootMargin: '200px' });
+        rowIO.observe(marquee);
+
+        function frame(now) {
+          rafId = requestAnimationFrame(frame);
+          const dt = Math.min(0.064, (now - lastT) / 1000);
+          lastT = now;
+
+          const curScroll = window.scrollY;
+          const scrollVelocity = dt > 0 ? (curScroll - lastScroll) / dt : 0;
+          lastScroll = curScroll;
+          spring.set(scrollVelocity);
+
+          if (document.visibilityState === 'hidden') return;
+          const target = spring.update(now);
+          const vf = Math.max(-5, Math.min(5, (target / 1000) * 5));
+          const absVf = Math.abs(vf);
+          const speedMultiplier = prefersReduced ? 1 : 1 + absVf;
+
+          // motion/react: pixels per second = (unitWidth * baseVelocity) / 100
+          const pixelsPerSecond = (unitWidth * baseVelocity) / 100;
+          baseX += direction * pixelsPerSecond * speedMultiplier * dt;
+
+          if (!inView) return;
+
+          const offset = wrap(0, unitWidth, baseX);
+          row.style.transform = 'translate3d(' + (-offset) + 'px, 0, 0)';
+        }
+
+        // start lazily on first scroll or after load (to keep the page fast)
+        function start() {
+          if (started) return;
+          started = true;
+          lastT = performance.now();
+          rafId = requestAnimationFrame(frame);
+        }
+        window.addEventListener('scroll', start, { passive: true });
+        setTimeout(start, 300);
+
+        // pause when tab hidden
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'hidden') {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = null;
+          } else {
+            start();
+          }
+        });
+      });
+    })();
   </script>
 </body>
 </html>
