@@ -650,7 +650,7 @@
       </div>
 
       <div class="bento">
-        <article class="card span-7">
+        <article class="card span-8">
           <h3><span class="card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/><path d="M8 11h6M11 8v6"/></svg>
           </span>Forensic document analysis</h3>
@@ -660,7 +660,7 @@
           </div>
         </article>
 
-        <article class="card span-5">
+        <article class="card span-4">
           <h3><span class="card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
           </span>OCR + MRZ extraction</h3>
@@ -669,7 +669,6 @@
             <span>DocTR</span><span>ISO 18013</span><span>MRZ</span>
           </div>
         </article>
-
         <article class="card span-4">
           <h3><span class="card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3.5"/></svg>
@@ -691,13 +690,23 @@
           <p>Fuzzy-name screening against OFAC SDN, UN, and EU lists with weighted risk scoring baked into the decision engine.</p>
         </article>
 
-        <article class="card span-12">
+        <article class="card span-4">
+          <h3><span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.5-1-2 3.4 2 1.6A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.4-2.6a7 7 0 0 0 2-1.2l2.5 1 2-3.4-2-1.6A7 7 0 0 0 19 12z"/></svg>
+          </span>Multi-tenant API keys</h3>
+          <p>Keys are per-tenant, SHA-256 hashed, rotatable, and revocable — manage them from the dashboard or straight through the API.</p>
+          <div class="kv">
+            <span>Rotate</span><span>Revoke</span><span>Per-tenant</span>
+          </div>
+        </article>
+
+        <article class="card span-8">
           <h3><span class="card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h4l3-9 4 18 3-9h2"/></svg>
-          </span>Signed webhooks &amp; multi-tenant API</h3>
-          <p>Every case completion is delivered as an HMAC-SHA256-signed webhook with automatic retries and SSRF-protected target validation. Keys are per-tenant, rotatable, and revocable — manage them from the dashboard or the API.</p>
+          </span>Signed webhooks</h3>
+          <p>Every case completion is delivered as an HMAC-SHA256-signed webhook with automatic retries and SSRF-protected target validation. Your backend stays in sync the instant a verdict lands — no polling required.</p>
           <div class="kv">
-            <span>HMAC-SHA256</span><span>Retries</span><span>SSRF protection</span><span>Rotate / revoke</span>
+            <span>HMAC-SHA256</span><span>Retries</span><span>SSRF protection</span>
           </div>
         </article>
       </div>
