@@ -1,280 +1,899 @@
----
-title: DeepGuard — Self-Hosted KYC & Identity Verification
-description: Open-source KYC engine: forensic document analysis, OCR, face matching, liveness detection, AML screening. FastAPI + React.
-image: /hero.png
----
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#09090b" />
+  <meta name="theme-color" content="#0a0a0c" />
+  <meta name="description" content="DeepGuard is a self-hosted KYC and identity-verification engine: forensic document analysis, DocTR OCR, DeepFace matching, liveness detection, and AML screening — with signed webhooks and a full admin dashboard. Open source, MIT license." />
   <meta property="og:title" content="DeepGuard — Self-Hosted KYC & Identity Verification" />
-  <meta property="og:description" content="Forensic document analysis, DocTR OCR, DeepFace matching, liveness detection, AML screening — with signed webhooks. FastAPI + React." />
+  <meta property="og:description" content="Forensic document analysis, OCR, face matching, liveness, and AML screening. FastAPI + React. MIT licensed." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://jordansoftware.github.io/DEEPGUARD-KYC/" />
-  <meta property="og:image" content="https://jordansoftware.github.io/DEEPGUARD-KYC/hero.png" />
+  <meta property="og:image" content="https://jordansoftware.github.io/DEEPGUARD-KYC/og.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <title>DeepGuard — Self-Hosted KYC Platform</title>
+  <title>DeepGuard — Self-Hosted KYC &amp; Identity Verification</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
+    /*
+      Design system — SaaS marketing, dark-first, neutral-first
+      ------------------------------------------------------------------
+      Tokens: OKLCH neutrals with a single emerald action accent.
+      Semantic colors reserved for status only (case verdicts).
+      Rhythm: 8px spacing grid, clamp-based section spacing.
+    */
     :root {
-      --bg: #09090b;
-      --bg-soft: #0f0f12;
-      --card: #141419;
-      --border: #1f1f26;
-      --text: #fafafa;
-      --muted: #a1a1aa;
-      --accent: #34d399;
-      --accent-dim: #10b981;
+      --bg: oklch(0.14 0.005 260);
+      --bg-raised: oklch(0.17 0.008 260);
+      --panel: oklch(0.185 0.009 260);
+      --panel-2: oklch(0.215 0.011 260);
+      --border: oklch(0.28 0.015 260 / 0.7);
+      --border-strong: oklch(0.36 0.02 260 / 0.8);
+      --text: oklch(0.95 0.005 260);
+      --text-2: oklch(0.76 0.015 260);
+      --text-3: oklch(0.58 0.018 260);
+      --action: oklch(0.72 0.15 165);
+      --action-strong: oklch(0.80 0.14 165);
+      --action-ink: oklch(0.18 0.05 165);
+      --success: oklch(0.77 0.15 155);
+      --warning: oklch(0.82 0.14 95);
+      --danger: oklch(0.68 0.18 25);
+      --mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+      --sans: "Inter", system-ui, -apple-system, sans-serif;
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --shadow-soft: 0 1px 0 oklch(1 0 0 / 0.04) inset, 0 16px 40px oklch(0 0 0 / 0.35);
+      --section: clamp(72px, 10vw, 128px);
+      --measure: 62ch;
     }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+
     body {
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: var(--sans);
+      font-size: 1rem;
+      line-height: 1.6;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
 
-    .container { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+    ::selection { background: oklch(0.72 0.15 165 / 0.28); }
 
-    /* Nav */
-    nav {
-      position: sticky; top: 0; z-index: 10;
-      background: rgba(9,9,11,0.85); backdrop-filter: blur(12px);
+    .container { max-width: 72rem; margin: 0 auto; padding-inline: 1.5rem; }
+
+    a { color: inherit; text-decoration: none; }
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--action);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    /* ---------- Header ---------- */
+    .site-header {
+      position: sticky; top: 0; z-index: 50;
+      background: oklch(0.14 0.005 260 / 0.8);
+      backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
     }
-    nav .container { display: flex; align-items: center; justify-content: space-between; height: 60px; }
-    .logo { font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
-    .logo span { color: var(--accent); }
-    .nav-links { display: flex; gap: 24px; font-size: 14px; color: var(--muted); }
-    .nav-links a { color: var(--muted); }
-    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .site-header .container {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 3.75rem;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 0.625rem;
+      font-weight: 600; font-size: 1rem; letter-spacing: -0.01em;
+    }
+    .brand-mark {
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 0.5rem;
+      display: grid; place-items: center;
+      background: linear-gradient(155deg, var(--action) 0%, oklch(0.55 0.18 165) 100%);
+      box-shadow: 0 1px 6px oklch(0.72 0.15 165 / 0.45);
+      color: var(--action-ink);
+    }
+    .brand-mark svg { width: 1rem; height: 1rem; }
+    .nav {
+      display: flex; align-items: center; gap: 2rem;
+      font-size: 0.875rem; color: var(--text-2);
+    }
+    .nav a { padding: 0.25rem 0; position: relative; }
+    .nav a:hover { color: var(--text); }
+    .nav a::after {
+      content: ""; position: absolute; left: 0; right: 100%;
+      bottom: -2px; height: 1.5px; background: var(--action);
+      transition: right 0.25s ease;
+    }
+    .nav a:hover::after { right: 0; }
+    .header-cta { display: flex; align-items: center; gap: 0.75rem; }
+    .header-cta .btn { padding: 0.5rem 1rem; font-size: 0.875rem; }
 
-    /* Hero */
-    header { padding: 96px 0 72px; text-align: center; position: relative; overflow: hidden; }
-    header::before {
-      content: '';
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      font-family: var(--sans); font-weight: 600; font-size: 0.9375rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn svg { width: 1rem; height: 1rem; }
+    .btn-primary {
+      background: var(--action);
+      color: var(--action-ink);
+      box-shadow: 0 1px 0 oklch(1 0 0 / 0.2) inset, 0 8px 24px oklch(0.72 0.15 165 / 0.25);
+    }
+    .btn-primary:hover { background: var(--action-strong); transform: translateY(-1px); }
+    .btn-ghost {
+      background: var(--panel);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    .btn-ghost:hover { background: var(--panel-2); border-color: var(--border-strong); transform: translateY(-1px); }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative;
+      padding: var(--section) 0;
+      overflow: clip;
+    }
+    .hero::before {
+      content: "";
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse 60% 50% at 50% -10%, rgba(52,211,153,0.14), transparent);
+      background:
+        radial-gradient(52rem 30rem at 50% -12%, oklch(0.72 0.15 165 / 0.13), transparent 70%),
+        radial-gradient(30rem 22rem at 85% 20%, oklch(0.65 0.14 230 / 0.08), transparent 70%);
       pointer-events: none;
     }
-    .badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 12px; font-weight: 500; letter-spacing: 0.04em;
-      color: var(--accent); background: rgba(52,211,153,0.08);
-      border: 1px solid rgba(52,211,153,0.25);
-      border-radius: 100px; padding: 5px 14px; margin-bottom: 28px;
-    }
-    .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-    h1 { font-size: clamp(36px, 6vw, 60px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
-    h1 em { font-style: normal; color: var(--accent); }
-    .sub { margin: 20px auto 0; max-width: 640px; font-size: 18px; color: var(--muted); }
-    .cta-row { margin-top: 40px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 14px; font-weight: 600;
-      border-radius: 8px; padding: 11px 22px;
-      border: 1px solid transparent;
-      transition: transform 0.15s, background 0.15s;
-      cursor: pointer;
-    }
-    .btn:hover { transform: translateY(-1px); text-decoration: none; }
-    .btn-primary { background: var(--accent); color: #052e21; }
-    .btn-primary:hover { background: var(--accent-dim); }
-    .btn-ghost { background: var(--card); color: var(--text); border-color: var(--border); }
-    .btn-ghost:hover { background: #1c1c24; }
+    .hero-inner { position: relative; max-width: 52rem; }
 
-    /* Terminal block */
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.8125rem; font-weight: 500;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--action);
+      background: oklch(0.72 0.15 165 / 0.08);
+      border: 1px solid oklch(0.72 0.15 165 / 0.22);
+      border-radius: 999px;
+      padding: 0.375rem 0.875rem;
+    }
+    .eyebrow .dot {
+      width: 0.375rem; height: 0.375rem; border-radius: 50%;
+      background: var(--action);
+      box-shadow: 0 0 0 4px oklch(0.72 0.15 165 / 0.12);
+    }
+
+    h1 {
+      margin-top: 1.5rem;
+      font-size: clamp(2.5rem, 1rem + 5.5vw, 4.25rem);
+      line-height: 1.02;
+      letter-spacing: -0.035em;
+      font-weight: 700;
+      max-width: 24ch;
+    }
+    h1 .accent {
+      background: linear-gradient(100deg, var(--action) 20%, var(--action-strong) 80%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero-sub {
+      margin-top: 1.25rem;
+      max-width: var(--measure);
+      font-size: 1.125rem;
+      line-height: 1.65;
+      color: var(--text-2);
+    }
+    .hero-sub strong { color: var(--text); font-weight: 600; }
+
+    .hero-actions {
+      margin-top: 2.25rem;
+      display: flex; flex-wrap: wrap; gap: 0.75rem;
+    }
+
+    .hero-proof {
+      margin-top: 1.75rem;
+      display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem;
+      font-size: 0.8125rem; color: var(--text-3);
+    }
+    .hero-proof span { display: inline-flex; align-items: center; gap: 0.4rem; }
+    .hero-proof svg { width: 0.875rem; height: 0.875rem; color: var(--action); opacity: 0.9; }
+
+    /* ---------- Terminal ---------- */
     .terminal {
-      margin: 56px auto 0; max-width: 720px;
-      background: #0c0c10; border: 1px solid var(--border);
-      border-radius: 12px; overflow: hidden;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      margin-top: 3rem;
+      max-width: 44rem;
+      background: oklch(0.16 0.007 260);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
     }
     .terminal-bar {
-      display: flex; gap: 7px; padding: 13px 16px;
-      background: #111116; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: oklch(0.185 0.009 260 / 0.6);
     }
-    .terminal-bar i { width: 11px; height: 11px; border-radius: 50%; display: block; }
-    .terminal-bar i:nth-child(1) { background: #ff5f57; }
-    .terminal-bar i:nth-child(2) { background: #febc2e; }
-    .terminal-bar i:nth-child(3) { background: #28c840; }
-    .terminal-body { padding: 22px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.9; }
-    .cmd { color: var(--accent); }
-    .out { color: #d4d4d8; }
-    .out-dim { color: #52525b; }
-
-    /* Sections */
-    section { padding: 80px 0; }
-    section h2 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; text-align: center; margin-bottom: 12px; }
-    section .lead { color: var(--muted); text-align: center; max-width: 560px; margin: 0 auto 48px; font-size: 16px; }
-
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 22px;
-      transition: border-color 0.2s;
+    .terminal-bar .tl { width: 0.625rem; height: 0.625rem; border-radius: 50%; }
+    .terminal-bar .tl:nth-child(1) { background: oklch(0.65 0.18 25); }
+    .terminal-bar .tl:nth-child(2) { background: oklch(0.8 0.15 90); }
+    .terminal-bar .tl:nth-child(3) { background: oklch(0.7 0.16 155); }
+    .terminal-bar .tl-label {
+      margin-left: 0.5rem;
+      font-family: var(--mono); font-size: 0.6875rem; color: var(--text-3);
+      letter-spacing: 0.02em;
     }
-    .card:hover { border-color: #2c2c34; }
-    .card .icon { font-size: 22px; margin-bottom: 14px; display: block; }
-    .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 7px; }
-    .card p { font-size: 13px; color: var(--muted); line-height: 1.55; }
-
-    /* Stats */
-    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 56px; }
-    @media (max-width: 768px) { .stats { grid-template-columns: repeat(2, 1fr); } }
-    .stat { text-align: center; padding: 28px 16px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 12px; }
-    .stat .num { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); font-variant-numeric: tabular-nums; }
-    .stat .label { font-size: 12px; color: var(--muted); margin-top: 4px; letter-spacing: 0.03em; text-transform: uppercase; }
-
-    /* Architecture */
-    .flow {
-      display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0;
-      align-items: center; max-width: 640px; margin: 0 auto;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 32px;
+    .terminal-body {
+      padding: 1.25rem 1.25rem 1.5rem;
+      font-family: var(--mono);
+      font-size: 0.8125rem;
+      line-height: 2;
+      overflow-x: auto;
     }
-    @media (max-width: 640px) { .flow { grid-template-columns: 1fr; gap: 16px; } .flow .arrow { display: none; } }
-    .flow-box { text-align: center; }
-    .flow-box .t { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
-    .flow-box .d { font-size: 12px; color: var(--muted); line-height: 1.5; }
-    .arrow { font-size: 22px; color: var(--accent); text-align: center; }
+    .tline { white-space: pre; }
+    .tline .p { color: var(--action); }
+    .tline .c { color: var(--text-2); }
+    .tline .o { color: var(--text-2); }
+    .tline .v { color: var(--success); font-weight: 500; }
+    .tline .w { color: var(--warning); font-weight: 500; }
+    .tline .m { color: var(--text-3); }
 
-    footer {
+    /* ---------- Section scaffolding ---------- */
+    .section { padding: var(--section) 0; }
+    .section + .section { padding-top: 0; }
+    .section-head { max-width: 38rem; margin-bottom: 3rem; }
+    .section-head.center { margin-inline: auto; text-align: center; }
+    .overline {
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      color: var(--action);
+    }
+    .section-head h2 {
+      margin-top: 0.75rem;
+      font-size: clamp(1.75rem, 1rem + 2.4vw, 2.5rem);
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+      font-weight: 700;
+    }
+    .section-head p {
+      margin-top: 0.875rem;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--text-2);
+      max-width: var(--measure);
+    }
+    .section-head.center p { margin-inline: auto; }
+
+    /* ---------- Feature grid (bento) ---------- */
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+    }
+    .bento .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .bento .card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-strong);
+      background: var(--panel-2);
+    }
+    .bento .card::before {
+      content: "";
+      position: absolute; inset: 0 0 auto 0; height: 1px;
+      background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.12), transparent);
+    }
+    .bento .card h3 {
+      font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.01em;
+      display: flex; align-items: center; gap: 0.625rem;
+    }
+    .bento .card p {
+      margin-top: 0.625rem;
+      font-size: 0.875rem; line-height: 1.6;
+      color: var(--text-2);
+    }
+    .card-icon {
+      flex: none;
+      width: 2.25rem; height: 2.25rem;
+      display: grid; place-items: center;
+      border-radius: 0.625rem;
+      background: oklch(0.72 0.15 165 / 0.1);
+      border: 1px solid oklch(0.72 0.15 165 / 0.2);
+      color: var(--action);
+    }
+    .card-icon svg { width: 1.125rem; height: 1.125rem; }
+
+    .bento .span-7 { grid-column: span 7; }
+    .bento .span-5 { grid-column: span 5; }
+    .bento .span-4 { grid-column: span 4; }
+    .bento .span-8 { grid-column: span 8; }
+
+    /* Feature card interior: key value row */
+    .kv {
+      margin-top: 1.25rem;
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .kv span {
+      font-family: var(--mono);
+      font-size: 0.6875rem; font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--text-2);
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.25rem 0.625rem;
+    }
+
+    /* ---------- Pipeline (how it works) ---------- */
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+      position: relative;
+    }
+    .pipeline::before {
+      content: "";
+      position: absolute; top: 2.625rem; left: 6%; right: 6%;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, var(--border-strong) 15%, var(--border-strong) 85%, transparent);
+      z-index: 0;
+    }
+    .step {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 0 0.5rem;
+    }
+    .step-num {
+      width: 3.25rem; height: 3.25rem;
+      margin: 0 auto 1rem;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      font-family: var(--mono); font-size: 0.875rem; font-weight: 600;
+      color: var(--text-2);
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .step:hover .step-num { border-color: var(--action); color: var(--action); }
+    .step h4 {
+      font-size: 0.875rem; font-weight: 600; letter-spacing: -0.005em;
+    }
+    .step p {
+      margin-top: 0.375rem;
+      font-size: 0.75rem; line-height: 1.5;
+      color: var(--text-3);
+    }
+
+    /* Verdict band */
+    .verdict-band {
+      margin-top: 2.5rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .verdict {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      background: var(--panel);
+      position: relative;
+      overflow: hidden;
+    }
+    .verdict::before {
+      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    }
+    .verdict.pass::before { background: var(--success); }
+    .verdict.review::before { background: var(--warning); }
+    .verdict.fail::before { background: var(--danger); }
+    .verdict .v-head {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .verdict h4 { font-size: 1rem; font-weight: 600; }
+    .v-tag {
+      font-family: var(--mono); font-size: 0.625rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      border-radius: 999px; padding: 0.25rem 0.625rem;
+    }
+    .verdict.pass .v-tag { color: var(--success); background: oklch(0.77 0.15 155 / 0.1); border: 1px solid oklch(0.77 0.15 155 / 0.25); }
+    .verdict.review .v-tag { color: var(--warning); background: oklch(0.82 0.14 95 / 0.1); border: 1px solid oklch(0.82 0.14 95 / 0.25); }
+    .verdict.fail .v-tag { color: var(--danger); background: oklch(0.68 0.18 25 / 0.12); border: 1px solid oklch(0.68 0.18 25 / 0.28); }
+    .verdict p {
+      margin-top: 0.625rem;
+      font-size: 0.8125rem; line-height: 1.55; color: var(--text-2);
+    }
+    .v-meta {
+      margin-top: 1rem; padding-top: 0.875rem;
       border-top: 1px solid var(--border);
-      padding: 40px 0; text-align: center;
-      color: var(--muted); font-size: 13px;
+      font-family: var(--mono); font-size: 0.6875rem; color: var(--text-3);
+      display: flex; justify-content: space-between; gap: 1rem;
     }
-    footer a { color: var(--accent); }
+
+    /* ---------- Metrics ---------- */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .metric {
+      text-align: center;
+      padding: 1.75rem 1rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+    .metric .num {
+      font-size: clamp(1.75rem, 1rem + 2.2vw, 2.375rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+    }
+    .metric .num em { font-style: normal; color: var(--action); }
+    .metric .label {
+      margin-top: 0.375rem;
+      font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    /* ---------- Integrations / Use cases ---------- */
+    .use-cases {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .use-case {
+      padding: 1.5rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+    .use-case:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+    .use-case .uc-tag {
+      font-family: var(--mono); font-size: 0.6875rem; font-weight: 500;
+      color: var(--action); letter-spacing: 0.03em;
+    }
+    .use-case h3 {
+      margin-top: 0.75rem;
+      font-size: 1rem; font-weight: 600; letter-spacing: -0.01em;
+    }
+    .use-case p {
+      margin-top: 0.5rem;
+      font-size: 0.875rem; line-height: 1.6; color: var(--text-2);
+    }
+
+    /* ---------- FAQ ---------- */
+    .faq-list { max-width: 46rem; margin: 0 auto; }
+    details {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--panel);
+      padding: 0 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+    details[open] { border-color: var(--border-strong); }
+    summary {
+      list-style: none; cursor: pointer;
+      padding: 1rem 0;
+      font-size: 0.9375rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::after {
+      content: "+";
+      font-family: var(--mono); font-size: 1rem; font-weight: 500;
+      color: var(--text-3);
+      transition: transform 0.2s ease;
+      flex: none;
+    }
+    details[open] summary::after { content: "−"; color: var(--action); }
+    details .faq-body {
+      padding-bottom: 1.25rem;
+      font-size: 0.875rem; line-height: 1.65; color: var(--text-2);
+    }
+
+    /* ---------- Final CTA ---------- */
+    .cta-band {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(50rem 20rem at 50% 120%, oklch(0.72 0.15 165 / 0.14), transparent 70%),
+        var(--panel);
+      padding: clamp(3rem, 6vw, 4.5rem);
+      text-align: center;
+    }
+    .cta-band h2 {
+      font-size: clamp(1.75rem, 1rem + 2.6vw, 2.5rem);
+      font-weight: 700; letter-spacing: -0.03em; line-height: 1.1;
+    }
+    .cta-band p {
+      margin: 1rem auto 0;
+      max-width: 42ch;
+      color: var(--text-2); font-size: 1rem;
+    }
+    .cta-band .hero-actions { justify-content: center; }
+    .cta-band .hero-actions { margin-top: 2rem; }
+
+    /* ---------- Footer ---------- */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 0;
+    }
+    .footer-grid {
+      display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-links { display: flex; gap: 1.5rem; font-size: 0.8125rem; color: var(--text-3); }
+    .footer-links a { color: var(--text-2); }
+    .footer-links a:hover { color: var(--action); }
+    .footer-note {
+      margin-top: 1.5rem; padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem; color: var(--text-3);
+      display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 900px) {
+      .bento .span-7, .bento .span-5, .bento .span-4, .bento .span-8 { grid-column: span 12; }
+      .pipeline { grid-template-columns: repeat(3, 1fr); row-gap: 2.5rem; }
+      .pipeline::before { display: none; }
+      .verdict-band, .use-cases, .metrics { grid-template-columns: repeat(2, 1fr); }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .nav { display: none; }
+      .pipeline { grid-template-columns: 1fr 1fr; }
+      .verdict-band, .use-cases, .metrics { grid-template-columns: 1fr; }
+      .footer-grid, .footer-note { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+      html { scroll-behavior: auto; }
+    }
   </style>
 </head>
 <body>
 
-  <nav>
+  <!-- ================= HEADER ================= -->
+  <header class="site-header">
     <div class="container">
-      <div class="logo">Deep<span>Guard</span></div>
-      <div class="nav-links">
+      <a class="brand" href="#" aria-label="DeepGuard home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3z"/>
+            <path d="M9.5 12.2l1.8 1.8 3.4-3.6"/>
+          </svg>
+        </span>
+        DeepGuard
+      </a>
+      <nav class="nav" aria-label="Primary">
         <a href="#features">Features</a>
-        <a href="#how">How it works</a>
-        <a href="#stats">Stats</a>
-        <a href="https://github.com/jordansoftware/DEEPGUARD-KYC" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
-  </nav>
-
-  <header>
-    <div class="container">
-      <div class="badge"><span class="dot"></span> Open Source · MIT License · Self-Hosted</div>
-      <h1>Self-hosted <em>KYC</em><br />&amp; identity verification engine</h1>
-      <p class="sub">
-        Forensic document analysis, OCR, face matching, liveness detection,
-        and AML screening — with signed webhooks and a full admin dashboard.
-      </p>
-      <div class="cta-row">
-        <a class="btn btn-primary" href="https://github.com/jordansoftware/DEEPGUARD-KYC" target="_blank" rel="noopener">
-          ⭐ Star on GitHub
+        <a href="#pipeline">Pipeline</a>
+        <a href="#use-cases">Use cases</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="header-cta">
+        <a class="btn btn-ghost" href="https://github.com/jordansoftware/DEEPGUARD-KYC" target="_blank" rel="noopener" aria-label="Star DeepGuard on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.6-1.3-1.6-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.5-.3-5.1-1.2-5.1-5.5 0-1.2.4-2.2 1.1-3-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.1a11 11 0 0 1 5.8 0c2.2-1.4 3.2-1.1 3.2-1.1.6 1.6.2 2.8.1 3.1.7.8 1.1 1.8 1.1 3 0 4.3-2.6 5.2-5.1 5.5.4.3.8 1 .8 1.9v2.9c0 .3.2.6.8.5A11.5 11.5 0 0 0 23.5 12C23.5 5.7 18.3.5 12 .5z"/></svg>
+          Star
         </a>
-        <a class="btn btn-ghost" href="#how">See how it works ↓</a>
-      </div>
-
-      <div class="terminal">
-        <div class="terminal-bar"><i></i><i></i><i></i></div>
-        <div class="terminal-body">
-          <div><span class="out-dim">$</span> <span class="cmd">git clone https://github.com/jordansoftware/DEEPGUARD-KYC</span></div>
-          <div><span class="out-dim">$</span> <span class="cmd">docker compose up -d</span></div>
-          <div><span class="out-dim">$</span> <span class="cmd">curl localhost:8765/api/kyc/cases -H "X-API-Key: dg_demo"</span></div>
-          <div class="out">→ 8 seed cases · verdicts · heatmaps · score 0.91</div>
-        </div>
+        <a class="btn btn-primary" href="https://github.com/jordansoftware/DEEPGUARD-KYC" target="_blank" rel="noopener">Get started</a>
       </div>
     </div>
   </header>
 
-  <section id="features">
+  <!-- ================= HERO ================= -->
+  <section class="hero">
     <div class="container">
-      <h2>Everything you need for compliant KYC</h2>
-      <p class="lead">Built for DeFi, fintech, and any app that needs to verify identities — without a $25k/year SaaS contract.</p>
-      <div class="grid">
-        <div class="card">
-          <span class="icon">🔬</span>
-          <h3>Forensic Analysis</h3>
-          <p>MELA, ELA, noise-pattern, and EXIF forensics on ID documents with pixel-level heatmap overlays to catch deepfakes, screen captures, and printouts.</p>
+      <div class="hero-inner">
+        <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Open source · MIT · Self-hosted</span>
+        <h1>Run your own <span class="accent">identity-verification</span> stack. No per-lookup billing.</h1>
+        <p class="hero-sub">
+          DeepGuard verifies identity documents end-to-end: <strong>forensic image analysis</strong>,
+          OCR and MRZ parsing, <strong>face matching</strong>, liveness detection, and AML screening —
+          then returns a weighted verdict through a signed webhook. One container. Your data stays yours.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://github.com/jordansoftware/DEEPGUARD-KYC" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.6-1.3-1.6-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.5-.3-5.1-1.2-5.1-5.5 0-1.2.4-2.2 1.1-3-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.1a11 11 0 0 1 5.8 0c2.2-1.4 3.2-1.1 3.2-1.1.6 1.6.2 2.8.1 3.1.7.8 1.1 1.8 1.1 3 0 4.3-2.6 5.2-5.1 5.5.4.3.8 1 .8 1.9v2.9c0 .3.2.6.8.5A11.5 11.5 0 0 0 23.5 12C23.5 5.7 18.3.5 12 .5z"/></svg>
+            View on GitHub
+          </a>
+          <a class="btn btn-ghost" href="#pipeline">See the pipeline</a>
         </div>
-        <div class="card">
-          <span class="icon">📄</span>
-          <h3>OCR + MRZ</h3>
-          <p>DocTR-powered text extraction and Machine Readable Zone parsing for passports, national IDs, and driving licences across 140+ document types.</p>
+        <div class="hero-proof" role="list">
+          <span role="listitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>MIT license, free forever</span>
+          <span role="listitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>No cloud dependency — runs in Docker</span>
+          <span role="listitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>39 tests, 31 endpoints, day-one ready</span>
         </div>
-        <div class="card">
-          <span class="icon">👤</span>
-          <h3>Face Matching</h3>
-          <p>DeepFace 1:1 matching between the document face and a live selfie capture, with cosine similarity scoring and configurable thresholds.</p>
-        </div>
-        <div class="card">
-          <span class="icon">📱</span>
-          <h3>Liveness Detection</h3>
-          <p>Passive liveness cues (photometric consistency, skin texture, ambient light) to block printed or replayed faces.</p>
-        </div>
-        <div class="card">
-          <span class="icon">⚠️</span>
-          <h3>AML / Sanctions</h3>
-          <p>Screening against OFAC SDN, UN, and EU sanction lists with fuzzy name matching and weighted risk scoring.</p>
-        </div>
-        <div class="card">
-          <span class="icon">🔔</span>
-          <h3>Signed Webhooks</h3>
-          <p>HMAC-SHA256 signed webhook delivery on case completion, with automatic retries and SSRF protection on target URLs.</p>
+
+        <div class="terminal" aria-label="Quick start terminal">
+          <div class="terminal-bar" aria-hidden="true">
+            <span class="tl"></span><span class="tl"></span><span class="tl"></span>
+            <span class="tl-label">deepguard — quickstart</span>
+          </div>
+          <div class="terminal-body">
+            <div class="tline"><span class="p">$</span> <span class="c">git clone https://github.com/jordansoftware/DEEPGUARD-KYC</span></div>
+            <div class="tline"><span class="p">$</span> <span class="c">cd DEEPGUARD-KYC && docker compose up -d</span></div>
+            <div class="tline"><span class="m"># backend on :8765 · dashboard on :5173 · demo key: dg_demo</span></div>
+            <div class="tline"><span class="p">$</span> <span class="c">curl localhost:8765/api/kyc/cases -H "X-API-Key: dg_demo"</span></div>
+            <div class="tline"><span class="o">→</span> <span class="v">200 OK</span> <span class="m">· 8 seed cases · verdicts · heatmaps</span></div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="how" style="padding-top: 0;">
+  <!-- ================= FEATURES ================= -->
+  <section class="section" id="features">
     <div class="container">
-      <h2>How it works</h2>
-      <p class="lead">Your app submits an ID document. DeepGuard's engine evaluates it. You get a verdict. Your user completes face verification via QR scan on their phone.</p>
-      <div class="flow">
-        <div class="flow-box">
-          <div class="t">Your App</div>
-          <div class="d">POST /api/kyc/cases<br />with ID document<br />+ API key</div>
+      <div class="section-head">
+        <span class="overline">The engine</span>
+        <h2>Every layer of identity verification, in one container</h2>
+        <p>Six analysis stages run on every document. Each contributes a weighted signal to the final verdict — so you audit <em>why</em>, not just <em>what</em>.</p>
+      </div>
+
+      <div class="bento">
+        <article class="card span-7">
+          <h3><span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/><path d="M8 11h6M11 8v6"/></svg>
+          </span>Forensic document analysis</h3>
+          <p>Pixel-level forensics built to catch deepfakes, screen captures, and printouts: moment enhancement, error-level analysis, noise-pattern analysis, and EXIF chain inspection — rendered as heatmap overlays your analysts can actually read.</p>
+          <div class="kv">
+            <span>MELA</span><span>ELA</span><span>Noise</span><span>EXIF</span><span>Heatmap</span>
+          </div>
+        </article>
+
+        <article class="card span-5">
+          <h3><span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+          </span>OCR + MRZ extraction</h3>
+          <p>DocTR-powered text extraction and Machine Readable Zone parsing across 140+ document types — passports, national IDs, and driving licences.</p>
+          <div class="kv">
+            <span>DocTR</span><span>ISO 18013</span><span>MRZ</span>
+          </div>
+        </article>
+
+        <article class="card span-4">
+          <h3><span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3.5"/></svg>
+          </span>Face matching</h3>
+          <p>DeepFace 1:1 matching between the document face and the live capture, with cosine similarity and a configurable threshold per integration.</p>
+        </article>
+
+        <article class="card span-4">
+          <h3><span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M16.3 7.7l2.1-2.1"/><circle cx="12" cy="14" r="4"/><path d="M12 12v2l1.5 1"/></svg>
+          </span>Liveness detection</h3>
+          <p>Passive liveness cues — photometric consistency, skin texture, and ambient-light checks — to block printed photos and replayed video.</p>
+        </article>
+
+        <article class="card span-4">
+          <h3><span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          </span>AML &amp; sanctions screening</h3>
+          <p>Fuzzy-name screening against OFAC SDN, UN, and EU lists with weighted risk scoring baked into the decision engine.</p>
+        </article>
+
+        <article class="card span-12">
+          <h3><span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h4l3-9 4 18 3-9h2"/></svg>
+          </span>Signed webhooks &amp; multi-tenant API</h3>
+          <p>Every case completion is delivered as an HMAC-SHA256-signed webhook with automatic retries and SSRF-protected target validation. Keys are per-tenant, rotatable, and revocable — manage them from the dashboard or the API.</p>
+          <div class="kv">
+            <span>HMAC-SHA256</span><span>Retries</span><span>SSRF protection</span><span>Rotate / revoke</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PIPELINE ================= -->
+  <section class="section" id="pipeline">
+    <div class="container">
+      <div class="section-head center">
+        <span class="overline">How it works</span>
+        <h2>From ID photo to verdict in five stages</h2>
+        <p>Your app submits the document. The engine evaluates it. You get a machine-readable verdict plus a human-readable audit trail.</p>
+      </div>
+
+      <div class="pipeline" role="list">
+        <div class="step" role="listitem">
+          <div class="step-num">01</div>
+          <h4>Submit</h4>
+          <p>POST /api/kyc/cases with the document and your API key</p>
         </div>
-        <div class="arrow">→</div>
-        <div class="flow-box">
-          <div class="t">DeepGuard Engine</div>
-          <div class="d">Forensics → OCR →<br />Face Match → Liveness<br />→ AML → Verdict</div>
+        <div class="step" role="listitem">
+          <div class="step-num">02</div>
+          <h4>Forensics</h4>
+          <p>MELA / ELA / noise / EXIF analysis with heatmap output</p>
+        </div>
+        <div class="step" role="listitem">
+          <div class="step-num">03</div>
+          <h4>Extract</h4>
+          <p>OCR + MRZ parsing pulls names, DOB, and doc numbers</p>
+        </div>
+        <div class="step" role="listitem">
+          <div class="step-num">04</div>
+          <h4>Verify</h4>
+          <p>Face match, liveness, and sanctions screening in parallel</p>
+        </div>
+        <div class="step" role="listitem">
+          <div class="step-num">05</div>
+          <h4>Decide</h4>
+          <p>Weighted engine scores signals → verdict + webhook</p>
+        </div>
+      </div>
+
+      <div class="verdict-band" role="list">
+        <article class="verdict pass" role="listitem">
+          <div class="v-head">
+            <h4>Approved</h4>
+            <span class="v-tag">PASS</span>
+          </div>
+          <p>All weighted signals clear their thresholds. No fraud indicators, no sanctions match, face + liveness verified.</p>
+          <div class="v-meta"><span>score 0.94</span><span>defects 0</span></div>
+        </article>
+        <article class="verdict review" role="listitem">
+          <div class="v-head">
+            <h4>Manual review</h4>
+            <span class="v-tag">REVIEW</span>
+          </div>
+          <p>A signal crossed a warning threshold — e.g. elevated MELA anomaly or weak liveness cue. Routed to your analyst queue.</p>
+          <div class="v-meta"><span>score 0.58</span><span>defects 2</span></div>
+        </article>
+        <article class="verdict fail" role="listitem">
+          <div class="v-head">
+            <h4>Rejected</h4>
+            <span class="v-tag">FAIL</span>
+          </div>
+          <p>Strong fraud indicators or a direct sanctions-list match. The verdict carries the exact defect weights that triggered it.</p>
+          <div class="v-meta"><span>score 0.21</span><span>defects 4</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= METRICS ================= -->
+  <section class="section">
+    <div class="container">
+      <div class="metrics" role="list">
+        <div class="metric" role="listitem">
+          <div class="num">31</div>
+          <div class="label">API endpoints</div>
+        </div>
+        <div class="metric" role="listitem">
+          <div class="num">39<em>/39</em></div>
+          <div class="label">Tests passing</div>
+        </div>
+        <div class="metric" role="listitem">
+          <div class="num">140<em>+</em></div>
+          <div class="label">Document types</div>
+        </div>
+        <div class="metric" role="listitem">
+          <div class="num">1</div>
+          <div class="label">Docker compose up</div>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="stats" style="padding-top: 0;">
+  <!-- ================= USE CASES ================= -->
+  <section class="section" id="use-cases">
     <div class="container">
-      <div class="stats">
-        <div class="stat"><div class="num">31</div><div class="label">API Endpoints</div></div>
-        <div class="stat"><div class="num">39</div><div class="label">Tests Passing</div></div>
-        <div class="stat"><div class="num">140+</div><div class="label">Doc Types</div></div>
-        <div class="stat"><div class="num">MIT</div><div class="label">License</div></div>
+      <div class="section-head">
+        <span class="overline">Who it's for</span>
+        <h2>Built for teams that can't send their users' data to a third party</h2>
+      </div>
+      <div class="use-cases">
+        <article class="use-case">
+          <span class="uc-tag">DeFi · Crypto on-ramps</span>
+          <h3>Self-custody KYC</h3>
+          <p>Verify depositers and wallet operators without shipping PII to Sumsub or Onfido. Screening and forensics run on your own infrastructure, in your own jurisdiction.</p>
+        </article>
+        <article class="use-case">
+          <span class="uc-tag">Fintech · Lending</span>
+          <h3>Compliance without the per-lookup fee</h3>
+          <p>High-volume lending and remittance teams hit vendor pricing walls fast. DeepGuard is flat-cost: it runs wherever you do, scales with your traffic, and the verdicts are fully auditable.</p>
+        </article>
+        <article class="use-case">
+          <span class="uc-tag">Platforms · Marketplaces</span>
+          <h3>Seller &amp; creator verification</h3>
+          <p>Drop face-match + document forensics into onboarding for sellers, drivers, or creators. The signed webhook keeps your backend in sync the moment a verdict lands.</p>
+        </article>
       </div>
     </div>
   </section>
 
-  <footer>
+  <!-- ================= FAQ ================= -->
+  <section class="section" id="faq">
     <div class="container">
-      DeepGuard is open source under the MIT license.
-      <br /><br />
-      <a href="https://github.com/jordansoftware/DEEPGUARD-KYC" target="_blank" rel="noopener">GitHub</a>
-      &nbsp;·&nbsp;
-      <a href="https://github.com/jordansoftware/DEEPGUARD-KYC/blob/main/README.md" target="_blank" rel="noopener">Full docs</a>
-      &nbsp;·&nbsp;
-      <a href="https://github.com/jordansoftware/DEEPGUARD-KYC/issues" target="_blank" rel="noopener">Report an issue</a>
+      <div class="section-head center">
+        <span class="overline">FAQ</span>
+        <h2>Questions we get a lot</h2>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>Is DeepGuard a replacement for managed vendors like Onfido or Sumsub?</summary>
+          <div class="faq-body">Yes, functionally — it's the self-hosted equivalent. The trade-off: you own the infrastructure, updates, and scaling. What you gain: zero per-lookup cost, data sovereignty, and full access to every model output and score, not just a final flag.</div>
+        </details>
+        <details>
+          <summary>Who initiates the face-verification step?</summary>
+          <div class="faq-body">Your app does. You call the face-session endpoint, show the returned QR code in your UI, and the end user scans it on their phone to submit a live selfie. The admin dashboard is view-only by design — it displays match, liveness, and device results but never initiates the flow.</div>
+        </details>
+        <details>
+          <summary>Can I plug in my own sanction lists or screening rules?</summary>
+          <div class="faq-body">Yes. The decision engine is a weighted rule system with exposed weights and defect definitions. Sanction lists load through the screening service; rule defaults live in <code style="font-family:var(--mono);font-size:0.8125rem;color:var(--action)">/api/rules/defaults</code> and are editable at runtime.</div>
+        </details>
+        <details>
+          <summary>How is my API key secured?</summary>
+          <div class="faq-body">Keys are SHA-256 hashed before storage, per-tenant, and rotate/revoke from the dashboard. Requests are authenticated via the <code style="font-family:var(--mono);font-size:0.8125rem;color:var(--action)">X-API-Key</code> header. Rate limits and SSRF protection are on by default.</div>
+        </details>
+        <details>
+          <summary>What about GDPR and data residency?</summary>
+          <div class="faq-body">Since everything runs in your own VPC or on-prem, data never leaves your network boundary. Export endpoints let you hand your users their data on request; retention is entirely your policy to enforce.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-band">
+        <h2>Own your verification stack</h2>
+        <p>Clone it, run the container, generate a key. Your first verified case is minutes away.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://github.com/jordansoftware/DEEPGUARD-KYC" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.6-1.3-1.6-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.5-.3-5.1-1.2-5.1-5.5 0-1.2.4-2.2 1.1-3-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.1a11 11 0 0 1 5.8 0c2.2-1.4 3.2-1.1 3.2-1.1.6 1.6.2 2.8.1 3.1.7.8 1.1 1.8 1.1 3 0 4.3-2.6 5.2-5.1 5.5.4.3.8 1 .8 1.9v2.9c0 .3.2.6.8.5A11.5 11.5 0 0 0 23.5 12C23.5 5.7 18.3.5 12 .5z"/></svg>
+            Star on GitHub
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/jordansoftware/DEEPGUARD-KYC/blob/main/README.md" target="_blank" rel="noopener">Read the full docs</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3z"/>
+              <path d="M9.5 12.2l1.8 1.8 3.4-3.6"/>
+            </svg>
+          </span>
+          DeepGuard
+        </div>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="https://github.com/jordansoftware/DEEPGUARD-KYC" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/jordansoftware/DEEPGUARD-KYC/blob/main/README.md" target="_blank" rel="noopener">Docs</a>
+          <a href="https://github.com/jordansoftware/DEEPGUARD-KYC/issues" target="_blank" rel="noopener">Issues</a>
+          <a href="https://github.com/jordansoftware/DEEPGUARD-KYC/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+        </nav>
+      </div>
+      <div class="footer-note">
+        <span>DeepGuard is open source under the MIT license. Not legal advice — pair with your own compliance counsel.</span>
+        <span>FastAPI · React · DocTR · DeepFace · Docker</span>
+      </div>
     </div>
   </footer>
 
