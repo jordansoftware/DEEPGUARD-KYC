@@ -377,49 +377,198 @@
       color: var(--text-3);
     }
 
-    /* Verdict band */
-    .verdict-band {
+    /* ---------- Decision engine panel ---------- */
+    .engine-panel {
       margin-top: 2.5rem;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-    }
-    .verdict {
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 1.5rem;
+      border-radius: var(--radius-lg);
       background: var(--panel);
-      position: relative;
       overflow: hidden;
     }
-    .verdict::before {
-      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    .ep-bar {
+      display: flex; align-items: center; gap: 0.625rem;
+      padding: 0.875rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: oklch(0.185 0.009 260 / 0.5);
+      font-family: var(--mono); font-size: 0.75rem; color: var(--text-3);
     }
-    .verdict.pass::before { background: var(--success); }
-    .verdict.review::before { background: var(--warning); }
-    .verdict.fail::before { background: var(--danger); }
-    .verdict .v-head {
-      display: flex; align-items: center; justify-content: space-between;
+    .ep-bar .tl { width: 0.625rem; height: 0.625rem; border-radius: 50%; }
+    .ep-bar .tl:nth-child(1) { background: oklch(0.65 0.18 25); }
+    .ep-bar .tl:nth-child(2) { background: oklch(0.8 0.15 90); }
+    .ep-bar .tl:nth-child(3) { background: oklch(0.7 0.16 155); }
+    .ep-bar .tl-label { margin-left: 0.5rem; }
+    .ep-bar .ep-live {
+      margin-left: auto;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: var(--action); font-weight: 500;
     }
-    .verdict h4 { font-size: 1rem; font-weight: 600; }
-    .v-tag {
-      font-family: var(--mono); font-size: 0.625rem; font-weight: 600;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      border-radius: 999px; padding: 0.25rem 0.625rem;
+    .ep-bar .ep-live .dot {
+      width: 0.4375rem; height: 0.4375rem; border-radius: 50%;
+      background: var(--action);
+      box-shadow: 0 0 0 4px oklch(0.72 0.15 165 / 0.12);
+      animation: ep-pulse 2.4s ease-in-out infinite;
     }
-    .verdict.pass .v-tag { color: var(--success); background: oklch(0.77 0.15 155 / 0.1); border: 1px solid oklch(0.77 0.15 155 / 0.25); }
-    .verdict.review .v-tag { color: var(--warning); background: oklch(0.82 0.14 95 / 0.1); border: 1px solid oklch(0.82 0.14 95 / 0.25); }
-    .verdict.fail .v-tag { color: var(--danger); background: oklch(0.68 0.18 25 / 0.12); border: 1px solid oklch(0.68 0.18 25 / 0.28); }
-    .verdict p {
-      margin-top: 0.625rem;
-      font-size: 0.8125rem; line-height: 1.55; color: var(--text-2);
+    @keyframes ep-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    .ep-body { padding: 1.5rem; display: grid; gap: 1rem; }
+
+    /* case row */
+    .case-row {
+      display: grid;
+      grid-template-columns: minmax(150px, 1fr) minmax(140px, 1.1fr) auto;
+      gap: 1.25rem;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: border-color 0.18s ease;
     }
-    .v-meta {
-      margin-top: 1rem; padding-top: 0.875rem;
+    .case-row:hover { border-color: var(--border-strong); }
+    .cr-id {
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+      color: var(--text-2);
+    }
+    .cr-id .cr-sub {
+      display: block; margin-top: 0.25rem;
+      font-size: 0.6875rem; color: var(--text-3); font-weight: 400;
+    }
+
+    .cr-meter { display: grid; gap: 0.4rem; }
+    .cr-meter .cr-meters-top {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 0.6875rem; color: var(--text-3);
+    }
+    .cr-meter .cr-meters-top strong {
+      font-family: var(--mono); font-size: 0.8125rem; font-weight: 600;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .cr-track {
+      height: 0.5rem; border-radius: 999px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+    .cr-fill {
+      height: 100%; border-radius: 999px;
+      position: relative;
+      transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+      width: 0;
+    }
+    .case-row.in-view .cr-fill { width: var(--w); }
+    .cr-fill::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.25));
+    }
+    .case-row.pass .cr-fill { background: linear-gradient(90deg, oklch(0.55 0.14 155), var(--success)); }
+    .case-row.review .cr-fill { background: linear-gradient(90deg, oklch(0.62 0.13 95), var(--warning)); }
+    .case-row.fail .cr-fill { background: linear-gradient(90deg, oklch(0.5 0.15 25), var(--danger)); }
+
+    .cr-verdict {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: var(--mono); font-size: 0.6875rem; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      border-radius: 999px;
+      padding: 0.375rem 0.75rem;
+      white-space: nowrap;
+    }
+    .cr-verdict svg { width: 0.875rem; height: 0.875rem; }
+    .case-row.pass .cr-verdict {
+      color: var(--success);
+      background: oklch(0.77 0.15 155 / 0.09);
+      border: 1px solid oklch(0.77 0.15 155 / 0.28);
+    }
+    .case-row.review .cr-verdict {
+      color: var(--warning);
+      background: oklch(0.82 0.14 95 / 0.09);
+      border: 1px solid oklch(0.82 0.14 95 / 0.28);
+    }
+    .case-row.fail .cr-verdict {
+      color: var(--danger);
+      background: oklch(0.68 0.18 25 / 0.11);
+      border: 1px solid oklch(0.68 0.18 25 / 0.3);
+    }
+
+    /* defect breakdown */
+    .ep-defects {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      padding: 1.25rem;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    .defects-title {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      color: var(--text-2);
+    }
+    .defects-title .count {
+      font-family: var(--mono);
+      color: var(--danger);
+      background: oklch(0.68 0.18 25 / 0.12);
+      border: 1px solid oklch(0.68 0.18 25 / 0.28);
+      border-radius: 999px;
+      padding: 0.0625rem 0.5rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .defect {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 0.25rem 0.75rem;
+      align-items: baseline;
+    }
+    .defect .d-name {
+      font-size: 0.8125rem; font-weight: 500;
+      color: var(--text);
+    }
+    .defect .d-name code {
+      font-family: var(--mono); font-size: 0.75rem;
+      color: var(--text-2); font-weight: 400;
+    }
+    .defect .d-weight {
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 600;
+      color: var(--danger);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .defect .d-bar {
+      grid-column: 1 / -1;
+      height: 0.3125rem; border-radius: 999px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .defect .d-bar span {
+      display: block; height: 100%;
+      background: linear-gradient(90deg, oklch(0.55 0.14 25), var(--danger));
+      border-radius: 999px;
+      width: 0;
+      transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+    }
+    .ep-defects.in-view .d-bar span { width: var(--w); }
+    .defect .d-note {
+      grid-column: 1 / -1;
+      font-size: 0.6875rem; color: var(--text-3); line-height: 1.5;
+    }
+
+    .ep-foot {
+      display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+      padding: 0.875rem 1.5rem;
       border-top: 1px solid var(--border);
+      background: oklch(0.185 0.009 260 / 0.4);
       font-family: var(--mono); font-size: 0.6875rem; color: var(--text-3);
-      display: flex; justify-content: space-between; gap: 1rem;
     }
+    .ep-foot code { color: var(--action); }
 
     /* ---------- Metrics ---------- */
     .metrics {
@@ -559,13 +708,17 @@
     @media (max-width: 640px) {
       .nav { display: none; }
       .pipeline { grid-template-columns: 1fr 1fr; }
-      .verdict-band, .use-cases, .metrics { grid-template-columns: 1fr; }
+      .use-cases, .metrics { grid-template-columns: 1fr; }
+      .case-row { grid-template-columns: 1fr; gap: 0.75rem; }
+      .ep-defects { grid-template-columns: 1fr; }
       .footer-grid, .footer-note { flex-direction: column; align-items: flex-start; }
     }
 
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
       html { scroll-behavior: auto; }
+      .case-row .cr-fill { width: var(--w) !important; }
+      .ep-defects .d-bar span { width: var(--w) !important; }
     }
   </style>
 </head>
@@ -750,31 +903,100 @@
         </div>
       </div>
 
-      <div class="verdict-band" role="list">
-        <article class="verdict pass" role="listitem">
-          <div class="v-head">
-            <h4>Approved</h4>
-            <span class="v-tag">PASS</span>
+      <div class="engine-panel">
+        <div class="ep-bar" aria-hidden="true">
+          <span class="tl"></span><span class="tl"></span><span class="tl"></span>
+          <span class="tl-label">deepguard · decision engine</span>
+          <span class="ep-live"><span class="dot"></span>live</span>
+        </div>
+
+        <div class="ep-body">
+          <!-- PASS -->
+          <article class="case-row pass">
+            <div class="cr-id">
+              KYC-9F3A-77C1
+              <span class="cr-sub">ID-FR · Hannah Müller</span>
+            </div>
+            <div class="cr-meter">
+              <div class="cr-meters-top"><span>confidence</span><strong>0.94</strong></div>
+              <div class="cr-track" style="--w: 94%;"><div class="cr-fill"></div></div>
+            </div>
+            <span class="cr-verdict">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              Approved
+            </span>
+          </article>
+
+          <!-- REVIEW -->
+          <article class="case-row review">
+            <div class="cr-id">
+              KYC-4B21-0DE8
+              <span class="cr-sub">ID-DE · Marc Le Guen</span>
+            </div>
+            <div class="cr-meter">
+              <div class="cr-meters-top"><span>confidence</span><strong>0.58</strong></div>
+              <div class="cr-track" style="--w: 58%;"><div class="cr-fill"></div></div>
+            </div>
+            <span class="cr-verdict">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
+              Review
+            </span>
+          </article>
+
+          <!-- FAIL + defects -->
+          <article class="case-row fail">
+            <div class="cr-id">
+              KYC-77AC-1B0F
+              <span class="cr-sub">ID-MA · Yacine Belhadj</span>
+            </div>
+            <div class="cr-meter">
+              <div class="cr-meters-top"><span>confidence</span><strong>0.21</strong></div>
+              <div class="cr-track" style="--w: 21%;"><div class="cr-fill"></div></div>
+            </div>
+            <span class="cr-verdict">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+              Rejected
+            </span>
+          </article>
+
+          <!-- defect breakdown -->
+          <div class="ep-defects">
+            <div class="defects-title">Defect weights · KYC-77AC-1B0F<span class="count">4 flags</span></div>
+
+            <div class="defect">
+              <span class="d-name">MELA anomaly <code>mela_score</code></span>
+              <span class="d-weight">+0.28</span>
+              <div class="d-bar" style="--w: 80%;"><span></span></div>
+              <span class="d-note">Moment enhancement shows screen-capture banding across the photo region.</span>
+            </div>
+
+            <div class="defect">
+              <span class="d-name">Liveness cue weak <code>liveness_cues</code></span>
+              <span class="d-weight">+0.19</span>
+              <div class="d-bar" style="--w: 55%;"><span></span></div>
+              <span class="d-note">Photometric consistency below threshold — replay risk on the capture.</span>
+            </div>
+
+            <div class="defect">
+              <span class="d-name">EXIF chain break <code>exif_anomalies</code></span>
+              <span class="d-weight">+0.14</span>
+              <div class="d-bar" style="--w: 40%;"><span></span></div>
+              <span class="d-note">Creation timestamp post-dates the document issue date.</span>
+            </div>
+
+            <div class="defect">
+              <span class="d-name">Sanctions proximity <code>sanctions_match</code></span>
+              <span class="d-weight">+0.30</span>
+              <div class="d-bar" style="--w: 100%;"><span></span></div>
+              <span class="d-note">Fuzzy match against an OFAC SDN entry at 92% similarity. Hard block.</span>
+            </div>
           </div>
-          <p>All weighted signals clear their thresholds. No fraud indicators, no sanctions match, face + liveness verified.</p>
-          <div class="v-meta"><span>score 0.94</span><span>defects 0</span></div>
-        </article>
-        <article class="verdict review" role="listitem">
-          <div class="v-head">
-            <h4>Manual review</h4>
-            <span class="v-tag">REVIEW</span>
-          </div>
-          <p>A signal crossed a warning threshold — e.g. elevated MELA anomaly or weak liveness cue. Routed to your analyst queue.</p>
-          <div class="v-meta"><span>score 0.58</span><span>defects 2</span></div>
-        </article>
-        <article class="verdict fail" role="listitem">
-          <div class="v-head">
-            <h4>Rejected</h4>
-            <span class="v-tag">FAIL</span>
-          </div>
-          <p>Strong fraud indicators or a direct sanctions-list match. The verdict carries the exact defect weights that triggered it.</p>
-          <div class="v-meta"><span>score 0.21</span><span>defects 4</span></div>
-        </article>
+        </div>
+
+        <div class="ep-foot">
+          <span>verdict = Σ(weighted defects) · <code>face_verification_missing</code> +5 · <code>capture_not_mobile</code> +2</span>
+          <span>webhook: <code>case.completed</code> signed HMAC-SHA256</span>
+        </div>
       </div>
     </div>
   </section>
@@ -906,5 +1128,16 @@
     </div>
   </footer>
 
+  <script>
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      }
+    }, { threshold: 0.25 });
+    document.querySelectorAll('.case-row, .ep-defects').forEach((el) => io.observe(el));
+  </script>
 </body>
 </html>
