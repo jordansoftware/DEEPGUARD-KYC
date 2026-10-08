@@ -36,7 +36,7 @@ settings = get_settings()
 
 
 def _now() -> dt.datetime:
-    return dt.datetime.now(dt.timezone.utc)
+    return dt.datetime.now(dt.UTC)
 
 
 class CaseStatus(str, enum.Enum):
@@ -84,7 +84,7 @@ class Client(Base):
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
-    cases: Mapped[list["Case"]] = relationship(back_populates="client")
+    cases: Mapped[list[Case]] = relationship(back_populates="client")
 
     @staticmethod
     def new_api_key() -> str:
@@ -123,14 +123,14 @@ class Case(Base):
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
-    client: Mapped["Client | None"] = relationship(back_populates="cases")
-    documents: Mapped[list["Document"]] = relationship(
+    client: Mapped[Client | None] = relationship(back_populates="cases")
+    documents: Mapped[list[Document]] = relationship(
         back_populates="case", cascade="all, delete-orphan"
     )
-    screenings: Mapped[list["Screening"]] = relationship(
+    screenings: Mapped[list[Screening]] = relationship(
         back_populates="case", cascade="all, delete-orphan"
     )
-    logs: Mapped[list["DecisionLog"]] = relationship(
+    logs: Mapped[list[DecisionLog]] = relationship(
         back_populates="case", cascade="all, delete-orphan"
     )
 
@@ -226,7 +226,7 @@ class Document(Base):
 
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
-    case: Mapped["Case"] = relationship(back_populates="documents")
+    case: Mapped[Case] = relationship(back_populates="documents")
 
     def to_dict(self, include_image: bool = True) -> dict:
         d = {
@@ -267,7 +267,7 @@ class Screening(Base):
     source: Mapped[str] = mapped_column(String(120), default="")
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
-    case: Mapped["Case"] = relationship(back_populates="screenings")
+    case: Mapped[Case] = relationship(back_populates="screenings")
 
     def to_dict(self) -> dict:
         return {
@@ -294,7 +294,7 @@ class DecisionLog(Base):
     note: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
-    case: Mapped["Case"] = relationship(back_populates="logs")
+    case: Mapped[Case] = relationship(back_populates="logs")
 
     def to_dict(self) -> dict:
         return {

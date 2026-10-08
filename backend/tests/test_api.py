@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import io
 import os
 import struct
 import tempfile
 import zlib
-from functools import lru_cache
 from unittest.mock import patch
 
 import pytest
@@ -19,12 +17,12 @@ os.environ["DATABASE_URL"] = f"sqlite:///{_test_db.name}"
 os.environ["DEEP_GUARD_ALLOW_ANON"] = "true"
 
 # Force settings cache to pick up the test DB URL BEFORE any module import
-from app.config import get_settings  # noqa: E402
+from app.config import get_settings
 
 get_settings.cache_clear()
 
-from app.db import init_db  # noqa: E402
-from main import app  # noqa: E402
+from app.db import init_db
+from main import app
 
 # Create tables once at import time
 init_db()

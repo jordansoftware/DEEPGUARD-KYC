@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { apiFetch } from '@/lib/api'
 import {
   type ColumnDef,
   type SortingState,
@@ -13,14 +12,10 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { Eye } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { apiFetch } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Sheet,
@@ -73,11 +68,7 @@ function ScoreCell({ score }: { score: number }) {
   if (score < 50) color = 'text-red-600'
   else if (score < 80) color = 'text-yellow-600'
 
-  return (
-    <span className={`font-semibold ${color}`}>
-      {score}
-    </span>
-  )
+  return <span className={`font-semibold ${color}`}>{score}</span>
 }
 
 export function AnalysisResults() {
@@ -150,9 +141,12 @@ export function AnalysisResults() {
       cell: ({ row }) => {
         const status = row.getValue('status') as string
         const variants: Record<string, string> = {
-          pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-          review: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-          approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+          pending:
+            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+          review:
+            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+          approved:
+            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
           rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
         }
         return (
@@ -219,7 +213,9 @@ export function AnalysisResults() {
 
       <Main>
         <div className='mb-6'>
-          <h1 className='text-2xl font-bold tracking-tight'>Analysis Results</h1>
+          <h1 className='text-2xl font-bold tracking-tight'>
+            Analysis Results
+          </h1>
           <p className='text-muted-foreground'>
             Review document analysis scores and verdicts.
           </p>
@@ -334,7 +330,7 @@ export function AnalysisResults() {
         </Card>
 
         <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
-          <SheetContent className='w-full sm:max-w-lg overflow-y-auto'>
+          <SheetContent className='w-full overflow-y-auto sm:max-w-lg'>
             <SheetHeader>
               <SheetTitle>Analysis Detail</SheetTitle>
               <SheetDescription>
@@ -344,36 +340,51 @@ export function AnalysisResults() {
             {detailLoading ? (
               <div className='space-y-4 p-4'>
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className='h-10 animate-pulse rounded bg-muted' />
+                  <div
+                    key={i}
+                    className='h-10 animate-pulse rounded bg-muted'
+                  />
                 ))}
               </div>
             ) : detailData ? (
               <div className='space-y-6 p-4'>
                 <div className='grid grid-cols-2 gap-4'>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Applicant</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Applicant
+                    </p>
                     <p className='text-sm'>{detailData.applicant}</p>
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Document Type</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Document Type
+                    </p>
                     <p className='text-sm'>{detailData.doc_type}</p>
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Country</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Country
+                    </p>
                     <p className='text-sm'>{detailData.country}</p>
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Submitted</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Submitted
+                    </p>
                     <p className='text-sm'>
                       {new Date(detailData.submitted).toLocaleDateString()}
                     </p>
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Score</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Score
+                    </p>
                     <ScoreCell score={detailData.score} />
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Verdict</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Verdict
+                    </p>
                     <Badge
                       variant={
                         detailData.verdict === 'pass'
@@ -390,7 +401,9 @@ export function AnalysisResults() {
 
                 {detailData.badges && detailData.badges.length > 0 && (
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground mb-2'>Badges</p>
+                    <p className='mb-2 text-sm font-medium text-muted-foreground'>
+                      Badges
+                    </p>
                     <div className='flex flex-wrap gap-2'>
                       {detailData.badges.map((badge) => (
                         <Badge key={badge} variant='outline'>
@@ -401,27 +414,33 @@ export function AnalysisResults() {
                   </div>
                 )}
 
-                {detailData.signals && Object.keys(detailData.signals).length > 0 && (
-                  <div>
-                    <p className='text-sm font-medium text-muted-foreground mb-2'>Signals</p>
-                    <div className='rounded-md border p-3'>
-                      <pre className='text-xs overflow-auto'>
-                        {JSON.stringify(detailData.signals, null, 2)}
-                      </pre>
+                {detailData.signals &&
+                  Object.keys(detailData.signals).length > 0 && (
+                    <div>
+                      <p className='mb-2 text-sm font-medium text-muted-foreground'>
+                        Signals
+                      </p>
+                      <div className='rounded-md border p-3'>
+                        <pre className='overflow-auto text-xs'>
+                          {JSON.stringify(detailData.signals, null, 2)}
+                        </pre>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {detailData.analysis && Object.keys(detailData.analysis).length > 0 && (
-                  <div>
-                    <p className='text-sm font-medium text-muted-foreground mb-2'>Full Analysis</p>
-                    <div className='rounded-md border p-3'>
-                      <pre className='text-xs overflow-auto'>
-                        {JSON.stringify(detailData.analysis, null, 2)}
-                      </pre>
+                {detailData.analysis &&
+                  Object.keys(detailData.analysis).length > 0 && (
+                    <div>
+                      <p className='mb-2 text-sm font-medium text-muted-foreground'>
+                        Full Analysis
+                      </p>
+                      <div className='rounded-md border p-3'>
+                        <pre className='overflow-auto text-xs'>
+                          {JSON.stringify(detailData.analysis, null, 2)}
+                        </pre>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             ) : null}
           </SheetContent>

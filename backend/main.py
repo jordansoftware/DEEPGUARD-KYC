@@ -15,17 +15,17 @@ from slowapi.util import get_remote_address
 
 from app import kyc, signals
 from app.config import get_settings
-from app.db import get_db, init_db
+from app.db import init_db
 from app.routers import (
-    clients,
-    webhooks,
-    screening,
-    reports,
-    batch,
-    rules,
     analytics,
+    batch,
+    clients,
     export,
     plugins,
+    reports,
+    rules,
+    screening,
+    webhooks,
 )
 from app.schemas import DecisionIn
 from app.security import current_client
@@ -55,6 +55,15 @@ init_db()
 # Seed a default admin client so the dashboard can authenticate immediately.
 # Use the API key "dg_demo" in the dashboard's Settings page to get started.
 def _seed_default_client() -> None:
+    """Create the demo client, but ONLY in explicit demo/sandbox mode.
+
+    The demo key is publicly documented, so it must never exist on a deployment
+    that is not running with DEEP_GUARD_ALLOW_ANON=true. An existing demo row is
+    left untouched (its key is never silently reset on boot).
+    """
+    if os.getenv("DEEP_GUARD_ALLOW_ANON", "false").lower() != "true":
+        return
+
     from app.db import SessionLocal
     from app.models import Client
     from app.security import hash_api_key
@@ -71,12 +80,7 @@ def _seed_default_client() -> None:
                 plan="pro",
             ))
             db.commit()
-            logger.info("Seeded default demo client (key: dg_demo)")
-        else:
-            # Ensure the demo key works even if the row was created differently
-            existing.api_key = hash_api_key(demo_key)
-            existing.active = True
-            db.commit()
+            logger.info("Seeded demo client (sandbox mode only)")
     except Exception:
         db.rollback()
         logger.exception("Failed to seed default client")
@@ -270,93 +274,68 @@ async def mobile_verify(
     request: Request,
     token: str = Form(...),
     selfie: UploadFile = File(...),
-    liveness_score: float = Form(0.0),
-    liveness_is_live: bool = Form(False),
-    liveness_checks: str = Form("{}"),
-    device_is_emulator: bool = Form(False),
-    device_is_bot: bool = Form(False),
-    device_is_mobile: bool = Form(False),
-    device_confidence: float = Form(0.0),
-    device_user_agent: str = Form(""),
 ):
-    """Mobile app submits selfie + liveness + device check results.
+    """Mobile app submits a selfie. Liveness, device and face checks run SERVER-SIDE.
 
-    Token is single-use and expires after TTL.
+    Client-supplied liveness or device claims are intentionally NOT accepted:
+    anything the browser sends can be forged. Token is single-use and expires after TTL.
     """
-    import json
+    import tempfile
+    import uuid as _uuid
 
-    from app.services.mobile_session import verify_token, complete_session
+    from app.services.anti_emulator import check_device
+    from app.services.liveness import check_liveness
+    from app.services.mobile_session import complete_session, verify_token
 
-    # Validate token
     payload = verify_token(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid or expired token.")
-
     case_id = payload.get("case_id")
 
-    # Validate selfie
     selfie_data = await selfie.read()
     if not selfie_data:
         raise HTTPException(status_code=400, detail="Empty selfie.")
 
-    # Parse liveness checks
-    try:
-        checks = json.loads(liveness_checks)
-    except (json.JSONDecodeError, TypeError):
-        checks = {}
-
-    liveness_result = {
-        "score": liveness_score,
-        "is_live": liveness_is_live,
-        "checks": checks,
-    }
-
-    # Device check results
-    device_result = {
-        "is_emulator": device_is_emulator,
-        "is_bot": device_is_bot,
-        "is_mobile": device_is_mobile,
-        "confidence": device_confidence,
-        "user_agent": device_user_agent[:500],  # truncate
-    }
-
-    # Block if emulator or bot detected
-    if device_is_emulator or device_is_bot:
+    # Device check from the request itself (User-Agent), not from form fields.
+    device = check_device(user_agent=request.headers.get("user-agent", "")[:500])
+    if device.is_emulator or device.is_bot:
         raise HTTPException(
             status_code=403,
             detail="Emulator or bot detected. Please use a real mobile device.",
         )
+    capture_device = "mobile" if device.is_mobile else "web"
 
-    # Block if liveness failed
-    if not liveness_is_live:
-        raise HTTPException(
-            status_code=403,
-            detail="Liveness check failed. Please try again with a real face.",
-        )
-
-    # Run face matching
-    face_result = {"match": False, "score": 0, "distance": 1.0}
+    # Write the selfie once; both liveness and face matching read this file.
+    selfie_tmp = os.path.join(tempfile.gettempdir(), "deepguard", f"selfie_{_uuid.uuid4().hex}.jpg")
+    os.makedirs(os.path.dirname(selfie_tmp), exist_ok=True)
     try:
-        from app.services.facematch import compare_faces
-        case = kyc.get_case(case_id)
-        if case and case.documents:
-            # Get the document photo path
-            doc = case.documents[0]
-            if doc.image_path:
-                # Save selfie to temp for face matching
-                import tempfile
-                import uuid as _uuid
-                selfie_tmp = os.path.join(
-                    tempfile.gettempdir(), "deepguard",
-                    f"selfie_match_{_uuid.uuid4().hex}.jpg"
-                )
-                os.makedirs(os.path.dirname(selfie_tmp), exist_ok=True)
-                with open(selfie_tmp, "wb") as f:
-                    f.write(selfie_data)
-                os.chmod(selfie_tmp, 0o600)
+        with open(selfie_tmp, "wb") as f:
+            f.write(selfie_data)
+        os.chmod(selfie_tmp, 0o600)
 
+        try:
+            live = check_liveness(selfie_tmp)
+        except Exception:
+            logger.exception("Liveness check failed to run")
+            live = {"score": 0.0, "passed": False, "signals": {}, "reasons": ["liveness_error"]}
+        liveness_result = {
+            "score": live["score"],
+            "is_live": bool(live["passed"]),
+            "checks": live.get("signals", {}),
+        }
+        if not liveness_result["is_live"]:
+            raise HTTPException(
+                status_code=403,
+                detail="Liveness check failed. Please try again with a real face.",
+            )
+
+        face_result = {"match": False, "score": 0, "distance": 1.0}
+        try:
+            from app.services.facematch import compare_faces
+            case = kyc.get_case(case_id)
+            if case and case.documents and case.documents[0].image_path:
                 try:
-                    match_result = compare_faces(selfie_tmp, doc.image_path)
+                    match_result = compare_faces(selfie_tmp, case.documents[0].image_path)
                     face_result = {
                         "match": match_result.get("match", False),
                         "score": match_result.get("score", 0),
@@ -364,27 +343,25 @@ async def mobile_verify(
                     }
                 except Exception:
                     logger.exception("Face matching failed")
-                finally:
-                    try:
-                        os.remove(selfie_tmp)
-                    except OSError:
-                        pass
-    except Exception:
-        logger.exception("Face match pipeline error")
+        except Exception:
+            logger.exception("Face match pipeline error")
 
-    # Complete session
-    capture_device = "mobile" if device_is_mobile else "web"
-    session = complete_session(
-        token=token,
-        selfie_data=selfie_data,
-        liveness_result=liveness_result,
-        face_result=face_result,
-        capture_device=capture_device,
-    )
+        session = complete_session(
+            token=token,
+            selfie_data=selfie_data,
+            liveness_result=liveness_result,
+            face_result=face_result,
+            capture_device=capture_device,
+        )
+    finally:
+        try:
+            os.remove(selfie_tmp)
+        except OSError:
+            pass
+
     if not session:
         raise HTTPException(status_code=410, detail="Session expired or already used.")
 
-    # Update KYC case with face verification results
     try:
         kyc.update_face_verification(
             case_id=case_id,
@@ -400,6 +377,9 @@ async def mobile_verify(
         "status": "verified",
         "face_match": face_result.get("match", False),
         "face_score": face_result.get("score", 0),
-        "liveness_score": liveness_result.get("score", 0),
-        "device": device_result,
+        "liveness_score": liveness_result["score"],
+        "device": {
+            "is_mobile": device.is_mobile,
+            "confidence": device.confidence,
+        },
     }

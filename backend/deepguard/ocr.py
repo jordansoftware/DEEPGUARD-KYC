@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from app.services.ocr import extract_text as _extract_text, parse_mrz
+from app.services.ocr import extract_text as _extract_text
 
 
 def extract_text(path: str) -> dict:

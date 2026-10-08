@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import io
-import math
-
 import numpy as np
 from PIL import Image
 

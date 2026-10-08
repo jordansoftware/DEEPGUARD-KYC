@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/mobile-verify')({
@@ -11,8 +11,8 @@ function MobileVerifyPage() {
 
   if (!token) {
     return (
-      <div className='flex items-center justify-center min-h-screen'>
-        <div className='text-center space-y-4'>
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='space-y-4 text-center'>
           <h1 className='text-2xl font-bold'>Invalid Link</h1>
           <p className='text-muted-foreground'>
             No verification token found. Please scan the QR code again.
@@ -33,19 +33,15 @@ function CameraCapture({ token }: { token: string }) {
   const [status, setStatus] = useState<
     'idle' | 'capturing' | 'uploading' | 'success' | 'error'
   >('idle')
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<{
+    face_match?: boolean
+    face_score: number
+    liveness_score: number
+  } | null>(null)
   const [error, setError] = useState('')
   const [cameraReady, setCameraReady] = useState(false)
 
-  const [deviceInfo, setDeviceInfo] = useState({
-    is_emulator: false,
-    is_bot: false,
-    is_mobile: false,
-    confidence: 0,
-    user_agent: navigator.userAgent,
-  })
-
-  useEffect(() => {
+  const [deviceInfo] = useState(() => {
     const info = {
       is_emulator: false,
       is_bot: false,
@@ -54,7 +50,7 @@ function CameraCapture({ token }: { token: string }) {
       user_agent: navigator.userAgent,
     }
 
-    if ((navigator as any).webdriver) {
+    if (navigator.webdriver) {
       info.is_emulator = true
       info.confidence -= 0.3
     }
@@ -64,7 +60,10 @@ function CameraCapture({ token }: { token: string }) {
       info.confidence += 0.1
     }
 
-    if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
+    if (
+      navigator.mediaDevices &&
+      typeof navigator.mediaDevices.getUserMedia === 'function'
+    ) {
       info.confidence += 0.1
     }
 
@@ -73,13 +72,17 @@ function CameraCapture({ token }: { token: string }) {
     }
 
     info.confidence = Math.max(0, Math.min(1, info.confidence))
-    setDeviceInfo(info)
-  }, [])
+    return info
+  })
 
   const startCamera = useCallback(async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: {
+          facingMode: 'user',
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
       })
       setStream(mediaStream)
@@ -154,16 +157,16 @@ function CameraCapture({ token }: { token: string }) {
       if (stream) {
         stream.getTracks().forEach((t) => t.stop())
       }
-    } catch (err: any) {
-      setError(err.message || 'Upload failed')
+    } catch (err) {
+      setError((err instanceof Error && err.message) || 'Upload failed')
       setStatus('error')
     }
   }, [photo, token, deviceInfo, stream])
 
   if (status === 'success' && result) {
     return (
-      <div className='flex items-center justify-center min-h-screen'>
-        <div className='text-center space-y-4 max-w-md'>
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='max-w-md space-y-4 text-center'>
           <div className='text-6xl'>✅</div>
           <h1 className='text-2xl font-bold'>Verification Complete</h1>
           <div className='space-y-2 text-sm'>
@@ -172,15 +175,14 @@ function CameraCapture({ token }: { token: string }) {
               {result.face_match ? 'Matched' : 'Not Matched'}
             </p>
             <p>
-              <strong>Score:</strong>{' '}
-              {(result.face_score * 100).toFixed(0)}%
+              <strong>Score:</strong> {(result.face_score * 100).toFixed(0)}%
             </p>
             <p>
               <strong>Liveness:</strong>{' '}
               {result.liveness_score > 0.5 ? 'Live' : 'Spoof'}
             </p>
           </div>
-          <p className='text-muted-foreground text-sm'>
+          <p className='text-sm text-muted-foreground'>
             You can close this page.
           </p>
         </div>
@@ -190,8 +192,8 @@ function CameraCapture({ token }: { token: string }) {
 
   if (status === 'error' && error) {
     return (
-      <div className='flex items-center justify-center min-h-screen'>
-        <div className='text-center space-y-4 max-w-md'>
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='max-w-md space-y-4 text-center'>
           <div className='text-6xl'>❌</div>
           <h1 className='text-2xl font-bold'>Verification Failed</h1>
           <p className='text-muted-foreground'>{error}</p>
@@ -201,7 +203,7 @@ function CameraCapture({ token }: { token: string }) {
               setError('')
               startCamera()
             }}
-            className='px-4 py-2 bg-primary text-primary-foreground rounded'
+            className='rounded bg-primary px-4 py-2 text-primary-foreground'
           >
             Try Again
           </button>
@@ -211,23 +213,23 @@ function CameraCapture({ token }: { token: string }) {
   }
 
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen p-4 space-y-4'>
+    <div className='flex min-h-screen flex-col items-center justify-center space-y-4 p-4'>
       <h1 className='text-xl font-bold'>Face Verification</h1>
-      <p className='text-sm text-muted-foreground text-center'>
+      <p className='text-center text-sm text-muted-foreground'>
         Position your face in the center and take a selfie
       </p>
 
       {!stream ? (
         <button
           onClick={startCamera}
-          className='px-6 py-3 bg-primary text-primary-foreground rounded-lg text-lg'
+          className='rounded-lg bg-primary px-6 py-3 text-lg text-primary-foreground'
         >
           Start Camera
         </button>
       ) : !photo ? (
         <>
           <div
-            className='relative rounded-lg overflow-hidden border-2 border-primary'
+            className='relative overflow-hidden rounded-lg border-2 border-primary'
             style={{ maxWidth: 400 }}
           >
             <video
@@ -238,12 +240,12 @@ function CameraCapture({ token }: { token: string }) {
               className='w-full'
               style={{ transform: 'scaleX(-1)' }}
             />
-            <div className='absolute inset-0 border-2 border-dashed border-white/30 rounded-lg pointer-events-none' />
+            <div className='pointer-events-none absolute inset-0 rounded-lg border-2 border-dashed border-white/30' />
           </div>
           <canvas ref={canvasRef} style={{ display: 'none' }} />
           <button
             onClick={capturePhoto}
-            className='px-6 py-3 bg-primary text-primary-foreground rounded-lg text-lg'
+            className='rounded-lg bg-primary px-6 py-3 text-lg text-primary-foreground'
             disabled={!cameraReady}
           >
             Take Selfie
@@ -254,30 +256,28 @@ function CameraCapture({ token }: { token: string }) {
           <img
             src={photo}
             alt='Captured selfie'
-            className='rounded-lg border max-w-md'
+            className='max-w-md rounded-lg border'
             style={{ transform: 'scaleX(-1)' }}
           />
           <div className='flex gap-4'>
             <button
               onClick={() => setPhoto(null)}
-              className='px-4 py-2 border rounded'
+              className='rounded border px-4 py-2'
             >
               Retake
             </button>
             <button
               onClick={submitVerification}
-              className='px-6 py-3 bg-primary text-primary-foreground rounded-lg'
+              className='rounded-lg bg-primary px-6 py-3 text-primary-foreground'
               disabled={status === 'uploading'}
             >
-              {status === 'uploading'
-                ? 'Verifying...'
-                : 'Submit Verification'}
+              {status === 'uploading' ? 'Verifying...' : 'Submit Verification'}
             </button>
           </div>
         </>
       )}
 
-      <div className='text-xs text-muted-foreground text-center max-w-sm space-y-1'>
+      <div className='max-w-sm space-y-1 text-center text-xs text-muted-foreground'>
         <p>
           Device: {deviceInfo.is_mobile ? 'Mobile' : 'Desktop/Web'} (confidence:{' '}
           {(deviceInfo.confidence * 100).toFixed(0)}%)

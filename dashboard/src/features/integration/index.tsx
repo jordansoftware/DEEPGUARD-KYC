@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Copy, Check } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import {
   Table,
   TableBody,
@@ -17,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Separator } from '@/components/ui/separator'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
@@ -28,7 +28,8 @@ function MethodBadge({ method }: { method: string }) {
   const colors: Record<string, string> = {
     GET: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
     POST: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    GET_DETAIL: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    GET_DETAIL:
+      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
   }
   return (
     <Badge
@@ -57,8 +58,8 @@ function CodeBlock({
 
   return (
     <div className='relative my-3 rounded-lg border bg-muted/40'>
-      <div className='flex items-center justify-between px-3 py-1.5 border-b'>
-        <code className='text-xs font-mono text-muted-foreground'>
+      <div className='flex items-center justify-between border-b px-3 py-1.5'>
+        <code className='font-mono text-xs text-muted-foreground'>
           {language}
         </code>
         <Button
@@ -155,14 +156,42 @@ def verify(payload: bytes, signature: str, secret: str) -> bool:
 ]
 
 const endpoints = [
-  { method: 'POST', path: '/api/kyc/cases', description: 'Submit an ID document for KYC analysis' },
-  { method: 'GET', path: '/api/kyc/cases/{id}', description: 'Get case detail (verdict, score, signals)' },
-  { method: 'GET', path: '/api/kyc/cases', description: 'List cases (filter: status, q, page)' },
-  { method: 'POST', path: '/api/kyc/cases/{id}/decision', description: 'Approve / reject / review a case' },
-  { method: 'POST', path: '/api/analyze', description: 'Analyze an image (no case created)' },
-  { method: 'POST', path: '/api/screening', description: 'AML / sanctions screening' },
+  {
+    method: 'POST',
+    path: '/api/kyc/cases',
+    description: 'Submit an ID document for KYC analysis',
+  },
+  {
+    method: 'GET',
+    path: '/api/kyc/cases/{id}',
+    description: 'Get case detail (verdict, score, signals)',
+  },
+  {
+    method: 'GET',
+    path: '/api/kyc/cases',
+    description: 'List cases (filter: status, q, page)',
+  },
+  {
+    method: 'POST',
+    path: '/api/kyc/cases/{id}/decision',
+    description: 'Approve / reject / review a case',
+  },
+  {
+    method: 'POST',
+    path: '/api/analyze',
+    description: 'Analyze an image (no case created)',
+  },
+  {
+    method: 'POST',
+    path: '/api/screening',
+    description: 'AML / sanctions screening',
+  },
   { method: 'POST', path: '/api/webhooks', description: 'Register a webhook' },
-  { method: 'POST', path: '/api/clients', description: 'Create a new client (get API key)' },
+  {
+    method: 'POST',
+    path: '/api/clients',
+    description: 'Create a new client (get API key)',
+  },
   { method: 'GET', path: '/api/health', description: 'Health check' },
 ]
 
@@ -200,7 +229,9 @@ export function IntegrationPage() {
 
       <Main>
         <div className='mb-6'>
-          <h1 className='text-2xl font-bold tracking-tight'>Integration Guide</h1>
+          <h1 className='text-2xl font-bold tracking-tight'>
+            Integration Guide
+          </h1>
           <p className='text-muted-foreground'>
             Connect your application to DeepGuard's KYC API.
           </p>
@@ -213,7 +244,7 @@ export function IntegrationPage() {
               <div key={step.title} className='flex gap-4'>
                 <div className='flex flex-col items-center'>
                   <div
-                    className='flex h-7 w-7 items-center justify-center rounded-full border bg-primary text-primary-foreground text-xs font-bold'
+                    className='flex h-7 w-7 items-center justify-center rounded-full border bg-primary text-xs font-bold text-primary-foreground'
                     aria-label={`Step ${stepNumber}`}
                   >
                     {stepNumber}
@@ -227,9 +258,7 @@ export function IntegrationPage() {
                   <p className='mt-1 text-sm text-muted-foreground'>
                     {step.description}
                   </p>
-                  <CodeBlock
-                    language={step === steps[4] ? 'python' : 'bash'}
-                  >
+                  <CodeBlock language={step === steps[4] ? 'python' : 'bash'}>
                     {step.code}
                   </CodeBlock>
                 </div>
@@ -292,7 +321,7 @@ export function IntegrationPage() {
                     <div className='flex items-start gap-3'>
                       <Badge
                         variant='outline'
-                        className='font-mono text-xs mt-0.5'
+                        className='mt-0.5 font-mono text-xs'
                       >
                         {field.name}
                       </Badge>

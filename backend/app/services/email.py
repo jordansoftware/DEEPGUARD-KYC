@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import re
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from html import escape
-import logging
 
 from app.config import get_settings
 

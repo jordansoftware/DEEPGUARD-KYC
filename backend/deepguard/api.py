@@ -14,7 +14,7 @@ import tempfile
 # Ensure backend app is importable
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 logger = logging.getLogger("deepguard.api")

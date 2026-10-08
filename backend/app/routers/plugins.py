@@ -6,7 +6,6 @@ import ipaddress
 import json
 import logging
 import urllib.request
-from typing import Any
 from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, HTTPException

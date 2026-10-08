@@ -11,7 +11,10 @@ interface KycCase {
   submitted: string
 }
 
-const statusVariant: Record<string, 'default' | 'destructive' | 'secondary' | 'outline'> = {
+const statusVariant: Record<
+  string,
+  'default' | 'destructive' | 'secondary' | 'outline'
+> = {
   pending: 'secondary',
   review: 'outline',
   approved: 'default',
@@ -28,7 +31,7 @@ export function RecentCases() {
 
   if (!data?.cases?.length) {
     return (
-      <div className='flex items-center justify-center h-40 text-muted-foreground text-sm'>
+      <div className='flex h-40 items-center justify-center text-sm text-muted-foreground'>
         No recent cases yet.
       </div>
     )
@@ -39,13 +42,15 @@ export function RecentCases() {
       {data.cases.map((c) => (
         <div key={c.id} className='flex items-center justify-between gap-3'>
           <div className='min-w-0 flex-1'>
-            <p className='text-sm font-medium truncate'>{c.applicant}</p>
+            <p className='truncate text-sm font-medium'>{c.applicant}</p>
             <p className='text-xs text-muted-foreground'>
               {c.doc_type} · {new Date(c.submitted).toLocaleDateString()}
             </p>
           </div>
-          <div className='flex items-center gap-2 shrink-0'>
-            <span className='text-xs font-mono text-muted-foreground'>{c.score}</span>
+          <div className='flex shrink-0 items-center gap-2'>
+            <span className='font-mono text-xs text-muted-foreground'>
+              {c.score}
+            </span>
             <Badge variant={statusVariant[c.status] ?? 'outline'}>
               {c.status}
             </Badge>

@@ -10,10 +10,9 @@ Implemented signals (lightweight, no pre-trained model):
 from __future__ import annotations
 
 import io
-import math
 
 import numpy as np
-from PIL import Image, ImageFilter, ImageChops
+from PIL import Image, ImageChops, ImageFilter
 
 MAX_DIM = 1024
 GRID = 8

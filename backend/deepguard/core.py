@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import io
-import sys
 import os
+import sys
 
 # Add backend to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from app.signals import analyze_image as _analyze_image, build_heatmap, _open_image
-import numpy as np
 from PIL import Image
+
+from app.signals import analyze_image as _analyze_image
 
 
 def analyze_image(path: str) -> dict:

@@ -15,21 +15,21 @@ Usage via CLI:
 
 __version__ = "0.1.0"
 
-from deepguard.core import analyze_image, analyze_image_from_bytes
-from deepguard.face import match_faces
-from deepguard.ocr import extract_text, extract_mrz
-from deepguard.liveness import detect_liveness, analyze_video_liveness
 from deepguard.address import verify_address
+from deepguard.core import analyze_image, analyze_image_from_bytes
 from deepguard.decision import decide
+from deepguard.face import match_faces
+from deepguard.liveness import analyze_video_liveness, detect_liveness
+from deepguard.ocr import extract_mrz, extract_text
 
 __all__ = [
     "analyze_image",
     "analyze_image_from_bytes",
-    "match_faces",
-    "extract_text",
-    "extract_mrz",
-    "detect_liveness",
     "analyze_video_liveness",
-    "verify_address",
     "decide",
+    "detect_liveness",
+    "extract_mrz",
+    "extract_text",
+    "match_faces",
+    "verify_address",
 ]

@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -5,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
@@ -120,8 +120,7 @@ const endpointGroups: EndpointGroup[] = [
       {
         method: 'POST',
         path: '/api/webhooks',
-        description:
-          'Create a new webhook. Body: { url, events, secret }.',
+        description: 'Create a new webhook. Body: { url, events, secret }.',
       },
       {
         method: 'DELETE',
@@ -154,14 +153,12 @@ const endpointGroups: EndpointGroup[] = [
       {
         method: 'GET',
         path: '/api/reports/{case_id}/pdf',
-        description:
-          'Download a PDF report for a specific case.',
+        description: 'Download a PDF report for a specific case.',
       },
       {
         method: 'POST',
         path: '/api/reports/{case_id}/generate',
-        description:
-          'Generate a report for a case (async). Returns a job ID.',
+        description: 'Generate a report for a case (async). Returns a job ID.',
       },
     ],
   },
@@ -198,11 +195,15 @@ function MethodBadge({ method }: { method: string }) {
     GET: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
     POST: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     PUT: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-    PATCH: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
+    PATCH:
+      'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
     DELETE: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
   }
   return (
-    <Badge variant='secondary' className={`font-mono text-xs ${colors[method] || ''}`}>
+    <Badge
+      variant='secondary'
+      className={`font-mono text-xs ${colors[method] || ''}`}
+    >
       {method}
     </Badge>
   )
@@ -219,9 +220,12 @@ export function APIDocsPage() {
 
       <Main>
         <div className='mb-6'>
-          <h1 className='text-2xl font-bold tracking-tight'>API Documentation</h1>
+          <h1 className='text-2xl font-bold tracking-tight'>
+            API Documentation
+          </h1>
           <p className='text-muted-foreground'>
-            Complete reference for the DeepGuard FastAPI backend. Base URL: <code className='rounded bg-muted px-1.5 py-0.5 text-sm'>/api</code>
+            Complete reference for the DeepGuard FastAPI backend. Base URL:{' '}
+            <code className='rounded bg-muted px-1.5 py-0.5 text-sm'>/api</code>
           </p>
         </div>
 
@@ -240,8 +244,8 @@ export function APIDocsPage() {
                       className='flex items-start gap-3 rounded-lg border p-3'
                     >
                       <MethodBadge method={endpoint.method} />
-                      <div className='flex-1 min-w-0'>
-                        <code className='text-sm font-mono font-medium break-all'>
+                      <div className='min-w-0 flex-1'>
+                        <code className='font-mono text-sm font-medium break-all'>
                           {endpoint.path}
                         </code>
                         <p className='mt-1 text-sm text-muted-foreground'>

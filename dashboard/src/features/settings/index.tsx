@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Key, User, Copy, Check, RefreshCw, Plus, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { apiFetch } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -12,12 +13,11 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ThemeSwitch } from '@/components/theme-switch'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
-import { apiFetch } from '@/lib/api'
+import { ThemeSwitch } from '@/components/theme-switch'
 
 interface Client {
   id: number
@@ -50,16 +50,19 @@ export function Settings() {
   const queryClient = useQueryClient()
 
   // Fetch current client's API key from the backend
-  const { data: currentClient, isLoading: clientLoading, isError: clientError } =
-    useQuery<Client>({
-      queryKey: ['current-client'],
-      queryFn: async () => {
-        // Get the list of clients and return the first one (current user's)
-        const clients = await apiFetch('/clients')
-        return clients[0]
-      },
-      retry: false,
-    })
+  const {
+    data: currentClient,
+    isLoading: clientLoading,
+    isError: clientError,
+  } = useQuery<Client>({
+    queryKey: ['current-client'],
+    queryFn: async () => {
+      // Get the list of clients and return the first one (current user's)
+      const clients = await apiFetch('/clients')
+      return clients[0]
+    },
+    retry: false,
+  })
 
   const handleSaveKey = () => {
     storeKey(apiKey.trim())
@@ -84,7 +87,9 @@ export function Settings() {
   const rotateMutation = useMutation({
     mutationFn: async () => {
       if (!currentClient) return null
-      return apiFetch(`/clients/${currentClient.id}/rotate-key`, { method: 'POST' })
+      return apiFetch(`/clients/${currentClient.id}/rotate-key`, {
+        method: 'POST',
+      })
     },
     onSuccess: (data: { api_key: string }) => {
       if (data?.api_key) {
@@ -111,7 +116,7 @@ export function Settings() {
           </p>
         </div>
 
-        <div className='space-y-6 max-w-2xl'>
+        <div className='max-w-2xl space-y-6'>
           <Card>
             <CardHeader>
               <div className='flex items-center gap-3'>
@@ -148,7 +153,8 @@ export function Settings() {
                       Usage this month
                     </span>
                     <span>
-                      {currentClient.used_this_month} / {currentClient.quota_monthly}
+                      {currentClient.used_this_month} /{' '}
+                      {currentClient.quota_monthly}
                     </span>
                   </div>
                 </div>
@@ -186,7 +192,11 @@ export function Settings() {
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                   />
-                  <Button variant='outline' onClick={handleCopyKey} disabled={!apiKey}>
+                  <Button
+                    variant='outline'
+                    onClick={handleCopyKey}
+                    disabled={!apiKey}
+                  >
                     {copied ? (
                       <Check className='h-4 w-4' />
                     ) : (
@@ -198,12 +208,14 @@ export function Settings() {
                   </Button>
                 </div>
                 <p className='text-xs text-muted-foreground'>
-                  {apiKey ? 'API key is set and stored locally.' : 'No API key configured.'}
+                  {apiKey
+                    ? 'API key is set and stored locally.'
+                    : 'No API key configured.'}
                 </p>
               </div>
 
               {currentClient && (
-                <div className='rounded-lg border p-3 space-y-3'>
+                <div className='space-y-3 rounded-lg border p-3'>
                   <div className='text-sm font-medium'>
                     Link to your client account
                   </div>
