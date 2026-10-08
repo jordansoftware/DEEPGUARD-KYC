@@ -201,8 +201,10 @@ curl http://localhost:8765/api/kyc/cases -H "X-API-Key: dg_demo" | python3 -m js
 # → 8 seed cases with scores, verdicts, and heatmaps
 ```
 
-> The seeded demo client uses the API key `dg_demo`. Generate your own from
-> **Settings → API Keys** in the dashboard for production.
+> The demo client (`dg_demo`) exists **only when `DEEP_GUARD_ALLOW_ANON=true`**
+> (sandbox mode). The shipped `docker-compose.yml` runs with it disabled, so for
+> the demo run `DEEP_GUARD_ALLOW_ANON=true docker compose up -d`. Never enable it
+> on a public deployment. Generate your own keys from **Settings → API Keys**.
 
 ---
 
