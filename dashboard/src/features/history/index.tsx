@@ -1,14 +1,9 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { apiFetch } from '@/lib/api'
 import { CheckCircle2, Eye, XCircle } from 'lucide-react'
+import { apiFetch } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -117,7 +112,10 @@ export function HistoryPage() {
             {isLoading ? (
               <div className='space-y-4'>
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className='h-16 animate-pulse rounded bg-muted' />
+                  <div
+                    key={i}
+                    className='h-16 animate-pulse rounded bg-muted'
+                  />
                 ))}
               </div>
             ) : filteredCases.length === 0 ? (
@@ -132,23 +130,21 @@ export function HistoryPage() {
                     className='flex items-center gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/50'
                   >
                     <VerdictIcon verdict={c.verdict} />
-                    <div className='flex-1 min-w-0'>
+                    <div className='min-w-0 flex-1'>
                       <div className='flex items-center gap-2'>
-                        <span className='font-medium truncate'>
+                        <span className='truncate font-medium'>
                           {c.applicant}
                         </span>
                         <Badge variant='outline' className='text-xs'>
                           {c.doc_type}
                         </Badge>
                       </div>
-                      <p className='text-sm text-muted-foreground truncate'>
+                      <p className='truncate text-sm text-muted-foreground'>
                         {c.id}
                       </p>
                     </div>
                     <div className='flex items-center gap-4 text-sm text-muted-foreground'>
-                      <span className='font-semibold'>
-                        Score: {c.score}
-                      </span>
+                      <span className='font-semibold'>Score: {c.score}</span>
                       <Badge
                         variant={
                           c.verdict === 'pass'

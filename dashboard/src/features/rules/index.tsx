@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { apiFetch } from '@/lib/api'
 import { SlidersHorizontal } from 'lucide-react'
+import { apiFetch } from '@/lib/api'
+import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -8,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
@@ -21,19 +21,31 @@ interface RulesData {
   thresholds: Record<string, number>
 }
 
-function Slider({ label, value, max, unit }: { label: string; value: number; max: number; unit?: string }) {
+function Slider({
+  label,
+  value,
+  max,
+  unit,
+}: {
+  label: string
+  value: number
+  max: number
+  unit?: string
+}) {
   return (
     <div className='space-y-1'>
       <div className='flex items-center justify-between'>
         <span className='text-sm text-muted-foreground'>{label}</span>
-        <span className='text-sm font-mono font-medium'>
+        <span className='font-mono text-sm font-medium'>
           {value}
-          {unit && <span className='text-muted-foreground text-xs ml-1'>{unit}</span>}
+          {unit && (
+            <span className='ml-1 text-xs text-muted-foreground'>{unit}</span>
+          )}
         </span>
       </div>
-      <div className='h-2 w-full rounded-full bg-muted overflow-hidden'>
+      <div className='h-2 w-full overflow-hidden rounded-full bg-muted'>
         <div
-          className='h-full bg-primary rounded-full'
+          className='h-full rounded-full bg-primary'
           style={{ width: `${(value / max) * 100}%` }}
         />
       </div>
@@ -60,7 +72,7 @@ export function RulesPage() {
       <Main>
         <div className='mb-6'>
           <h1 className='text-2xl font-bold tracking-tight'>
-            <SlidersHorizontal className='inline h-6 w-6 mr-2 -mt-1' />
+            <SlidersHorizontal className='-mt-1 mr-2 inline h-6 w-6' />
             Rules Engine
           </h1>
           <p className='text-muted-foreground'>
@@ -78,7 +90,10 @@ export function RulesPage() {
                 <CardContent>
                   <div className='space-y-3'>
                     {Array.from({ length: 4 }).map((_, j) => (
-                      <div key={j} className='h-4 animate-pulse rounded bg-muted' />
+                      <div
+                        key={j}
+                        className='h-4 animate-pulse rounded bg-muted'
+                      />
                     ))}
                   </div>
                 </CardContent>
@@ -88,8 +103,12 @@ export function RulesPage() {
         ) : isError ? (
           <Card>
             <CardHeader>
-              <CardTitle className='text-lg text-destructive'>Failed to load rules</CardTitle>
-              <CardDescription>Make sure the backend is running and the API key is configured.</CardDescription>
+              <CardTitle className='text-lg text-destructive'>
+                Failed to load rules
+              </CardTitle>
+              <CardDescription>
+                Make sure the backend is running and the API key is configured.
+              </CardDescription>
             </CardHeader>
           </Card>
         ) : data ? (
@@ -97,11 +116,18 @@ export function RulesPage() {
             <Card>
               <CardHeader>
                 <CardTitle className='text-lg'>Signal Weights</CardTitle>
-                <CardDescription>Contribution of each signal to the final score</CardDescription>
+                <CardDescription>
+                  Contribution of each signal to the final score
+                </CardDescription>
               </CardHeader>
               <CardContent className='space-y-4'>
                 {Object.entries(data.weights).map(([key, weight]) => (
-                  <Slider key={key} label={key.replace(/_/g, ' ')} value={weight} max={1} />
+                  <Slider
+                    key={key}
+                    label={key.replace(/_/g, ' ')}
+                    value={weight}
+                    max={1}
+                  />
                 ))}
               </CardContent>
             </Card>
@@ -109,12 +135,19 @@ export function RulesPage() {
             <Card>
               <CardHeader>
                 <CardTitle className='text-lg'>Defect Penalties</CardTitle>
-                <CardDescription>Score reduction for each detected defect</CardDescription>
+                <CardDescription>
+                  Score reduction for each detected defect
+                </CardDescription>
               </CardHeader>
-              <CardContent className='space-y-4 max-h-96 overflow-y-auto'>
+              <CardContent className='max-h-96 space-y-4 overflow-y-auto'>
                 {Object.entries(data.defect_weights).map(([key, penalty]) => (
-                  <div key={key} className='flex items-center justify-between text-sm'>
-                    <span className='text-muted-foreground'>{key.replace(/_/g, ' ')}</span>
+                  <div
+                    key={key}
+                    className='flex items-center justify-between text-sm'
+                  >
+                    <span className='text-muted-foreground'>
+                      {key.replace(/_/g, ' ')}
+                    </span>
                     <Badge variant='secondary'>-{penalty}</Badge>
                   </div>
                 ))}
@@ -124,7 +157,9 @@ export function RulesPage() {
             <Card>
               <CardHeader>
                 <CardTitle className='text-lg'>Thresholds</CardTitle>
-                <CardDescription>Decision boundaries and SLA settings</CardDescription>
+                <CardDescription>
+                  Decision boundaries and SLA settings
+                </CardDescription>
               </CardHeader>
               <CardContent className='space-y-4'>
                 <Slider
@@ -147,7 +182,9 @@ export function RulesPage() {
                 />
                 <div className='flex items-center justify-between text-sm'>
                   <span className='text-muted-foreground'>SLA hours</span>
-                  <span className='font-mono font-medium'>{data.thresholds.sla_hours}h</span>
+                  <span className='font-mono font-medium'>
+                    {data.thresholds.sla_hours}h
+                  </span>
                 </div>
               </CardContent>
             </Card>

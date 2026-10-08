@@ -11,33 +11,7 @@ import {
   Plus,
   Ban,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { apiFetch } from '@/lib/api'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,12 +22,38 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
+import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { apiFetch } from '@/lib/api'
 
 const STORAGE_KEY = 'deepguard_api_key'
 
@@ -128,7 +128,11 @@ function PlanBadge({ plan }: { plan: string }) {
       : plan === 'pro'
         ? 'destructive'
         : 'secondary'
-  return <Badge variant={variant as 'default' | 'destructive' | 'secondary'}>{plan}</Badge>
+  return (
+    <Badge variant={variant as 'default' | 'destructive' | 'secondary'}>
+      {plan}
+    </Badge>
+  )
 }
 
 export function ApiKeysPage() {
@@ -150,7 +154,13 @@ export function ApiKeysPage() {
   const [revokeOpen, setRevokeOpen] = useState<number | null>(null)
   const [deleteOpen, setDeleteOpen] = useState<number | null>(null)
 
-  const { data: clients, isLoading, isError, refetch, isFetching } = useQuery({
+  const {
+    data: clients,
+    isLoading,
+    isError,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ['clients'],
     queryFn: () => apiFetch('/clients').then((r: unknown) => r as Client[]),
     retry: false,
@@ -195,7 +205,10 @@ export function ApiKeysPage() {
     },
     onSuccess: (data, id) => {
       const client = clients?.find((c: Client) => c.id === id)
-      setRotateResult({ clientName: client?.name || `Key #${id}`, key: data.api_key })
+      setRotateResult({
+        clientName: client?.name || `Key #${id}`,
+        key: data.api_key,
+      })
       setRotateClientId(id)
       storeKey(data.api_key)
       rememberKeyFor(id, data.api_key)
@@ -267,7 +280,7 @@ export function ApiKeysPage() {
           </p>
         </div>
 
-        <div className='space-y-6 max-w-3xl'>
+        <div className='max-w-3xl space-y-6'>
           <Card>
             <CardHeader>
               <div className='flex items-center gap-3'>
@@ -285,13 +298,15 @@ export function ApiKeysPage() {
             <CardContent className='space-y-4'>
               {createdKey ? (
                 <div className='space-y-3'>
-                  <div className='rounded-lg border bg-primary/5 p-4 space-y-2'>
+                  <div className='space-y-2 rounded-lg border bg-primary/5 p-4'>
                     <div className='text-sm font-medium'>
                       New API key created for{' '}
-                      <span className='font-semibold'>{createdKey.clientName}</span>
+                      <span className='font-semibold'>
+                        {createdKey.clientName}
+                      </span>
                     </div>
                     <div className='flex items-center gap-2'>
-                      <code className='flex-1 overflow-x-auto rounded bg-muted px-3 py-2 text-xs font-mono'>
+                      <code className='flex-1 overflow-x-auto rounded bg-muted px-3 py-2 font-mono text-xs'>
                         {createdKey.key}
                       </code>
                       <Button
@@ -309,8 +324,8 @@ export function ApiKeysPage() {
                     <div className='flex items-start gap-2 text-xs text-amber-600 dark:text-amber-400'>
                       <AlertTriangle className='mt-0.5 h-3.5 w-3.5 shrink-0' />
                       <span>
-                        This key will not be shown again. Store it securely. It has
-                        been saved to localStorage.
+                        This key will not be shown again. Store it securely. It
+                        has been saved to localStorage.
                       </span>
                     </div>
                   </div>
@@ -349,7 +364,10 @@ export function ApiKeysPage() {
 
                   <div className='grid gap-2'>
                     <Label>Plan</Label>
-                    <Select value={plan} onValueChange={(v) => setPlan(v as Plan)}>
+                    <Select
+                      value={plan}
+                      onValueChange={(v) => setPlan(v as Plan)}
+                    >
                       <SelectTrigger className='w-full'>
                         <SelectValue />
                       </SelectTrigger>
@@ -382,8 +400,8 @@ export function ApiKeysPage() {
                     </Select>
                     {expiry !== 'none' && (
                       <p className='text-xs text-muted-foreground'>
-                        Expiry not enforced by backend yet. This is a client-side
-                        reminder only.
+                        Expiry not enforced by backend yet. This is a
+                        client-side reminder only.
                       </p>
                     )}
                   </div>
@@ -391,8 +409,8 @@ export function ApiKeysPage() {
                   <div className='flex items-start gap-2 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground'>
                     <AlertTriangle className='mt-0.5 h-3.5 w-3.5 shrink-0' />
                     <span>
-                      The API key is shown once after creation. You must store it
-                      securely.
+                      The API key is shown once after creation. You must store
+                      it securely.
                     </span>
                   </div>
 
@@ -440,12 +458,15 @@ export function ApiKeysPage() {
             </CardHeader>
             <CardContent>
               {rotateResult && (
-                <div className='mb-4 rounded-lg border bg-primary/5 p-4 space-y-2'>
+                <div className='mb-4 space-y-2 rounded-lg border bg-primary/5 p-4'>
                   <div className='text-sm font-medium'>
-                    Key rotated for <span className='font-semibold'>{rotateResult.clientName}</span>
+                    Key rotated for{' '}
+                    <span className='font-semibold'>
+                      {rotateResult.clientName}
+                    </span>
                   </div>
                   <div className='flex items-center gap-2'>
-                    <code className='flex-1 overflow-x-auto rounded bg-muted px-3 py-2 text-xs font-mono'>
+                    <code className='flex-1 overflow-x-auto rounded bg-muted px-3 py-2 font-mono text-xs'>
                       {rotateResult.key}
                     </code>
                     <Button
@@ -492,8 +513,19 @@ export function ApiKeysPage() {
                   <p className='text-sm text-muted-foreground'>
                     Could not load API keys. Make sure the backend is running.
                   </p>
-                  <Button variant='outline' size='sm' onClick={() => refetch()} disabled={isFetching}>
-                    <RefreshCw className={isFetching ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={() => refetch()}
+                    disabled={isFetching}
+                  >
+                    <RefreshCw
+                      className={
+                        isFetching
+                          ? 'mr-2 h-4 w-4 animate-spin'
+                          : 'mr-2 h-4 w-4'
+                      }
+                    />
                     Retry
                   </Button>
                 </div>
@@ -517,8 +549,7 @@ export function ApiKeysPage() {
                   </TableHeader>
                   <TableBody>
                     {clients.map((client) => {
-                      const keyValue =
-                        client.api_key || storedKeyFor(client.id)
+                      const keyValue = client.api_key || storedKeyFor(client.id)
                       const isCurrent = !!keyValue && keyValue === currentKey
                       const isActive = client.active
                       return (
@@ -529,7 +560,9 @@ export function ApiKeysPage() {
                           <TableCell className='font-medium'>
                             <div className='flex items-center gap-2'>
                               <span>{client.name}</span>
-                              {isCurrent && <Badge variant='default'>Current</Badge>}
+                              {isCurrent && (
+                                <Badge variant='default'>Current</Badge>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>
@@ -620,7 +653,10 @@ export function ApiKeysPage() {
         </div>
       </Main>
 
-      <AlertDialog open={revokeOpen !== null} onOpenChange={(open) => !open && setRevokeOpen(null)}>
+      <AlertDialog
+        open={revokeOpen !== null}
+        onOpenChange={(open) => !open && setRevokeOpen(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke API key?</AlertDialogTitle>
@@ -641,7 +677,7 @@ export function ApiKeysPage() {
                 }
               }}
               disabled={revokeMutation.isPending}
-              className='bg-destructive text-destructive-foreground'
+              className='text-destructive-foreground bg-destructive'
             >
               {revokeMutation.isPending ? (
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
@@ -652,7 +688,10 @@ export function ApiKeysPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={deleteOpen !== null} onOpenChange={(open) => !open && setDeleteOpen(null)}>
+      <AlertDialog
+        open={deleteOpen !== null}
+        onOpenChange={(open) => !open && setDeleteOpen(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete API key permanently?</AlertDialogTitle>
@@ -670,7 +709,7 @@ export function ApiKeysPage() {
                 e.stopPropagation()
                 handleDeleteConfirm()
               }}
-              className='bg-destructive text-destructive-foreground'
+              className='text-destructive-foreground bg-destructive'
             >
               <Trash2 className='mr-2 h-4 w-4' />
               Delete

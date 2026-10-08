@@ -1,14 +1,9 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Upload, CheckCircle2, Clock, RefreshCw } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
-import {
-  Upload,
-  CheckCircle2,
-  Clock,
-  RefreshCw,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -89,7 +84,9 @@ export function BatchUpload() {
         <Card className='mb-6'>
           <CardHeader>
             <CardTitle>Upload Files</CardTitle>
-            <CardDescription>Select multiple document images to process in batch</CardDescription>
+            <CardDescription>
+              Select multiple document images to process in batch
+            </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='grid gap-4 md:grid-cols-2'>
@@ -125,7 +122,7 @@ export function BatchUpload() {
                 multiple
                 accept='image/*'
                 onChange={(e) => setFiles(e.target.files)}
-                className='mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80'
+                className='mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-foreground hover:file:bg-primary/80'
               />
               {files && (
                 <p className='mt-2 text-sm text-muted-foreground'>
@@ -135,7 +132,9 @@ export function BatchUpload() {
             </div>
             <Button
               onClick={() => uploadMutation.mutate()}
-              disabled={!files || files.length === 0 || uploadMutation.isPending}
+              disabled={
+                !files || files.length === 0 || uploadMutation.isPending
+              }
             >
               {uploadMutation.isPending ? (
                 <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
@@ -155,7 +154,10 @@ export function BatchUpload() {
             {isLoading ? (
               <div className='space-y-2'>
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className='h-12 animate-pulse rounded bg-muted' />
+                  <div
+                    key={i}
+                    className='h-12 animate-pulse rounded bg-muted'
+                  />
                 ))}
               </div>
             ) : (
@@ -175,7 +177,13 @@ export function BatchUpload() {
                     <TableRow key={batch.id}>
                       <TableCell className='font-medium'>#{batch.id}</TableCell>
                       <TableCell>
-                        <Badge variant={batch.status === 'completed' ? 'default' : 'secondary'}>
+                        <Badge
+                          variant={
+                            batch.status === 'completed'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
                           {batch.status === 'completed' ? (
                             <CheckCircle2 className='mr-1 h-3 w-3' />
                           ) : (
@@ -185,14 +193,24 @@ export function BatchUpload() {
                         </Badge>
                       </TableCell>
                       <TableCell>{batch.total_files}</TableCell>
-                      <TableCell className='text-green-600'>{batch.processed}</TableCell>
-                      <TableCell className={batch.failed > 0 ? 'text-red-600' : ''}>{batch.failed}</TableCell>
-                      <TableCell>{new Date(batch.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell className='text-green-600'>
+                        {batch.processed}
+                      </TableCell>
+                      <TableCell
+                        className={batch.failed > 0 ? 'text-red-600' : ''}
+                      >
+                        {batch.failed}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(batch.created_at).toLocaleDateString()}
+                      </TableCell>
                     </TableRow>
                   ))}
                   {(!data?.batches || data.batches.length === 0) && (
                     <TableRow>
-                      <TableCell colSpan={6} className='h-24 text-center'>No batch jobs yet.</TableCell>
+                      <TableCell colSpan={6} className='h-24 text-center'>
+                        No batch jobs yet.
+                      </TableCell>
                     </TableRow>
                   )}
                 </TableBody>

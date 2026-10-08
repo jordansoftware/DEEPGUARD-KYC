@@ -49,7 +49,9 @@ export function ExportPage() {
         <Card>
           <CardHeader>
             <CardTitle>Export Options</CardTitle>
-            <CardDescription>Choose format and filters for your export</CardDescription>
+            <CardDescription>
+              Choose format and filters for your export
+            </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='grid gap-4 md:grid-cols-2'>

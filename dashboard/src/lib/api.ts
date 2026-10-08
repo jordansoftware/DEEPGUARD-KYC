@@ -7,7 +7,7 @@ const DEFAULT_KEY = 'dg_demo'
 export async function apiFetch(path: string, options?: RequestInit) {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(options?.headers as Record<string, string> || {}),
+    ...((options?.headers as Record<string, string>) || {}),
   }
 
   // Add API key if available in localStorage, otherwise fall back to the default

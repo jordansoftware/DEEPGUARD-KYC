@@ -1,17 +1,29 @@
 import { useQuery } from '@tanstack/react-query'
+import {
+  BarChart3,
+  Clock,
+  FileSearch,
+  CheckCircle2,
+  XCircle,
+} from 'lucide-react'
 import { apiFetch } from '@/lib/api'
-import { BarChart3, Clock, FileSearch, CheckCircle2, XCircle } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
+import { NumberTicker } from '@/components/ui/number-ticker'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { NumberTicker } from '@/components/ui/number-ticker'
+import { Analytics } from './components/analytics'
 import { Overview } from './components/overview'
 import { RecentCases } from './components/recent-cases'
-import { Analytics } from './components/analytics'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface KycStats {
   total_cases: number
@@ -62,7 +74,9 @@ export function Dashboard() {
               <div className='text-2xl font-bold'>
                 <NumberTicker value={totalCases} />
               </div>
-              <p className='text-xs text-muted-foreground'>All submitted cases</p>
+              <p className='text-xs text-muted-foreground'>
+                All submitted cases
+              </p>
             </CardContent>
           </Card>
 
@@ -88,7 +102,9 @@ export function Dashboard() {
               <div className='text-2xl font-bold'>
                 <NumberTicker value={review} />
               </div>
-              <p className='text-xs text-muted-foreground'>Under manual review</p>
+              <p className='text-xs text-muted-foreground'>
+                Under manual review
+              </p>
             </CardContent>
           </Card>
 
@@ -102,7 +118,8 @@ export function Dashboard() {
                 <NumberTicker value={approved} />
               </div>
               <p className='text-xs text-muted-foreground'>
-                {totalCases > 0 ? Math.round((approved / totalCases) * 100) : 0}% approval rate
+                {totalCases > 0 ? Math.round((approved / totalCases) * 100) : 0}
+                % approval rate
               </p>
             </CardContent>
           </Card>
@@ -132,7 +149,9 @@ export function Dashboard() {
               <Card className='col-span-1 lg:col-span-4'>
                 <CardHeader>
                   <CardTitle>Case Trends</CardTitle>
-                  <CardDescription>Daily KYC submissions (last 30 days)</CardDescription>
+                  <CardDescription>
+                    Daily KYC submissions (last 30 days)
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Overview />

@@ -1,12 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import {
-  Plug,
-  CheckCircle2,
-  XCircle,
-  Send,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Plug, CheckCircle2, XCircle, Send } from 'lucide-react'
+import { apiFetch } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -19,7 +15,6 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { apiFetch } from '@/lib/api'
 
 interface Plugin {
   name: string
@@ -31,12 +26,14 @@ interface Plugin {
 }
 
 export function PluginsPage() {
-  const { data, isLoading, isError, refetch } = useQuery<{ plugins: Plugin[] }>({
-    queryKey: ['plugins'],
-    queryFn: async () => {
-      return apiFetch('/plugins/')
-    },
-  })
+  const { data, isLoading, isError, refetch } = useQuery<{ plugins: Plugin[] }>(
+    {
+      queryKey: ['plugins'],
+      queryFn: async () => {
+        return apiFetch('/plugins/')
+      },
+    }
+  )
 
   const togglePlugin = async (name: string, enabled: boolean) => {
     await apiFetch(`/plugins/${name}`, {
@@ -61,7 +58,8 @@ export function PluginsPage() {
         <div className='mb-6'>
           <h1 className='text-2xl font-bold tracking-tight'>Integrations</h1>
           <p className='text-muted-foreground'>
-            Connect DeepGuard with external services for notifications and automation.
+            Connect DeepGuard with external services for notifications and
+            automation.
           </p>
         </div>
 
@@ -83,7 +81,9 @@ export function PluginsPage() {
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-2'>
                       <Plug className='h-5 w-5 text-muted-foreground' />
-                      <CardTitle className='text-lg'>{plugin.display_name}</CardTitle>
+                      <CardTitle className='text-lg'>
+                        {plugin.display_name}
+                      </CardTitle>
                     </div>
                     <Badge variant={plugin.enabled ? 'default' : 'secondary'}>
                       {plugin.enabled ? 'Enabled' : 'Disabled'}
@@ -115,17 +115,26 @@ export function PluginsPage() {
                       onClick={() => togglePlugin(plugin.name, !plugin.enabled)}
                     >
                       {plugin.enabled ? (
-                        <><XCircle className='mr-1 h-3 w-3' /> Disable</>
-        ) : isError ? (
-          <div className='rounded-md border p-6 text-center text-sm text-muted-foreground'>
-            Failed to load plugins. Please check your API key settings.
-          </div>
-        ) : (
-                        <><CheckCircle2 className='mr-1 h-3 w-3' /> Enable</>
+                        <>
+                          <XCircle className='mr-1 h-3 w-3' /> Disable
+                        </>
+                      ) : isError ? (
+                        <div className='rounded-md border p-6 text-center text-sm text-muted-foreground'>
+                          Failed to load plugins. Please check your API key
+                          settings.
+                        </div>
+                      ) : (
+                        <>
+                          <CheckCircle2 className='mr-1 h-3 w-3' /> Enable
+                        </>
                       )}
                     </Button>
                     {plugin.enabled && (
-                      <Button variant='ghost' size='sm' onClick={() => testPlugin(plugin.name)}>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => testPlugin(plugin.name)}
+                      >
                         <Send className='mr-1 h-3 w-3' /> Test
                       </Button>
                     )}

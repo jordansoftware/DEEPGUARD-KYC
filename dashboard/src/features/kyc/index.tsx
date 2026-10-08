@@ -1,9 +1,5 @@
 import { useState } from 'react'
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   type ColumnDef,
   type SortingState,
@@ -23,15 +19,18 @@ import {
   Filter,
   XCircle,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { apiFetch } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Sheet,
   SheetContent,
@@ -47,22 +46,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
-  DataTableColumnHeader,
-} from '@/components/data-table'
+import { DataTableColumnHeader } from '@/components/data-table'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { apiFetch } from '@/lib/api'
 
 interface KYCCase {
   id: string
@@ -132,7 +121,10 @@ function ScoreBadge({ score }: { score: number }) {
   }
   if (score >= 50) {
     return (
-      <Badge variant='default' className='bg-yellow-500 hover:bg-yellow-600 text-black'>
+      <Badge
+        variant='default'
+        className='bg-yellow-500 text-black hover:bg-yellow-600'
+      >
         {score}
       </Badge>
     )
@@ -142,9 +134,11 @@ function ScoreBadge({ score }: { score: number }) {
 
 function StatusBadge({ status }: { status: string }) {
   const variants: Record<string, string> = {
-    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    pending:
+      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     review: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    approved:
+      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
     rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
   }
   return (
@@ -165,7 +159,11 @@ export function KYCDashboard() {
 
   const queryClient = useQueryClient()
 
-  const { data, isLoading, isError: isKycError } = useQuery<KYCResponse>({
+  const {
+    data,
+    isLoading,
+    isError: isKycError,
+  } = useQuery<KYCResponse>({
     queryKey: ['kyc-cases', statusFilter],
     queryFn: async () => {
       const params = new URLSearchParams({ page: '1', page_size: '100' })
@@ -174,16 +172,25 @@ export function KYCDashboard() {
     },
   })
 
-  const { data: detailData, isLoading: detailLoading } = useQuery<KYCDetailResponse>({
-    queryKey: ['kyc-case-detail', selectedCase?.id],
-    queryFn: async () => {
-      return apiFetch(`/kyc/cases/${selectedCase?.id}`)
-    },
-    enabled: !!selectedCase?.id && detailOpen,
-  })
+  const { data: detailData, isLoading: detailLoading } =
+    useQuery<KYCDetailResponse>({
+      queryKey: ['kyc-case-detail', selectedCase?.id],
+      queryFn: async () => {
+        return apiFetch(`/kyc/cases/${selectedCase?.id}`)
+      },
+      enabled: !!selectedCase?.id && detailOpen,
+    })
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, status, notes }: { id: string; status: string; notes?: string }) => {
+    mutationFn: async ({
+      id,
+      status,
+      notes,
+    }: {
+      id: string
+      status: string
+      notes?: string
+    }) => {
       return apiFetch(`/kyc/cases/${id}`, {
         method: 'PATCH',
         body: JSON.stringify({ status, notes }),
@@ -350,139 +357,142 @@ export function KYCDashboard() {
         {isKycError ? (
           <Card>
             <CardHeader>
-              <CardTitle className='text-destructive'>Failed to load KYC cases</CardTitle>
+              <CardTitle className='text-destructive'>
+                Failed to load KYC cases
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className='text-sm text-muted-foreground'>
-                Check that the backend is running and your API key is configured in Settings.
+                Check that the backend is running and your API key is configured
+                in Settings.
               </p>
             </CardContent>
           </Card>
         ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>KYC Cases</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className='mb-4 flex items-center gap-4'>
-              <Input
-                placeholder='Search cases...'
-                value={globalFilter}
-                onChange={(e) => setGlobalFilter(e.target.value)}
-                className='max-w-sm'
-              />
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className='w-[180px]'>
-                  <Filter className='mr-2 h-4 w-4' />
-                  <SelectValue placeholder='Filter by status' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>All Statuses</SelectItem>
-                  <SelectItem value='pending'>Pending</SelectItem>
-                  <SelectItem value='review'>Review</SelectItem>
-                  <SelectItem value='approved'>Approved</SelectItem>
-                  <SelectItem value='rejected'>Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className='rounded-md border'>
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <TableHead key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    Array.from({ length: 5 }).map((_, i) => (
-                      <TableRow key={i}>
-                        {columns.map((_, j) => (
-                          <TableCell key={j}>
-                            <div className='h-4 animate-pulse rounded bg-muted' />
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && 'selected'}
-                        className='cursor-pointer'
-                        onClick={() => {
-                          setSelectedCase(row.original)
-                          setDetailOpen(true)
-                        }}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className='h-24 text-center'
-                      >
-                        No cases found.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            <div className='mt-4 flex items-center justify-between'>
-              <p className='text-sm text-muted-foreground'>
-                {table.getFilteredRowModel().rows.length} case(s) total
-              </p>
-              <div className='flex items-center gap-2'>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                >
-                  Previous
-                </Button>
-                <span className='text-sm'>
-                  Page {table.getState().pagination.pageIndex + 1} of{' '}
-                  {table.getPageCount()}
-                </span>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                >
-                  Next
-                </Button>
+          <Card>
+            <CardHeader>
+              <CardTitle>KYC Cases</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className='mb-4 flex items-center gap-4'>
+                <Input
+                  placeholder='Search cases...'
+                  value={globalFilter}
+                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  className='max-w-sm'
+                />
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className='w-[180px]'>
+                    <Filter className='mr-2 h-4 w-4' />
+                    <SelectValue placeholder='Filter by status' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Statuses</SelectItem>
+                    <SelectItem value='pending'>Pending</SelectItem>
+                    <SelectItem value='review'>Review</SelectItem>
+                    <SelectItem value='approved'>Approved</SelectItem>
+                    <SelectItem value='rejected'>Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+
+              <div className='rounded-md border'>
+                <Table>
+                  <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => (
+                          <TableHead key={header.id}>
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+                  <TableBody>
+                    {isLoading ? (
+                      Array.from({ length: 5 }).map((_, i) => (
+                        <TableRow key={i}>
+                          {columns.map((_, j) => (
+                            <TableCell key={j}>
+                              <div className='h-4 animate-pulse rounded bg-muted' />
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : table.getRowModel().rows?.length ? (
+                      table.getRowModel().rows.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          data-state={row.getIsSelected() && 'selected'}
+                          className='cursor-pointer'
+                          onClick={() => {
+                            setSelectedCase(row.original)
+                            setDetailOpen(true)
+                          }}
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id}>
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={columns.length}
+                          className='h-24 text-center'
+                        >
+                          No cases found.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              <div className='mt-4 flex items-center justify-between'>
+                <p className='text-sm text-muted-foreground'>
+                  {table.getFilteredRowModel().rows.length} case(s) total
+                </p>
+                <div className='flex items-center gap-2'>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    Previous
+                  </Button>
+                  <span className='text-sm'>
+                    Page {table.getState().pagination.pageIndex + 1} of{' '}
+                    {table.getPageCount()}
+                  </span>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
-          <SheetContent className='w-full sm:max-w-lg overflow-y-auto'>
+          <SheetContent className='w-full overflow-y-auto sm:max-w-lg'>
             <SheetHeader>
               <SheetTitle>Case Detail</SheetTitle>
               <SheetDescription>
@@ -492,36 +502,51 @@ export function KYCDashboard() {
             {detailLoading ? (
               <div className='space-y-4 p-4'>
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className='h-10 animate-pulse rounded bg-muted' />
+                  <div
+                    key={i}
+                    className='h-10 animate-pulse rounded bg-muted'
+                  />
                 ))}
               </div>
             ) : detailData ? (
               <div className='space-y-6 p-4'>
                 <div className='grid grid-cols-2 gap-4'>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Applicant</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Applicant
+                    </p>
                     <p className='text-sm'>{detailData.applicant}</p>
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Document Type</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Document Type
+                    </p>
                     <p className='text-sm'>{detailData.doc_type}</p>
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Country</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Country
+                    </p>
                     <p className='text-sm'>{detailData.country}</p>
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Submitted</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Submitted
+                    </p>
                     <p className='text-sm'>
                       {new Date(detailData.submitted).toLocaleDateString()}
                     </p>
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Score</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Score
+                    </p>
                     <ScoreBadge score={detailData.score} />
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Verdict</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Verdict
+                    </p>
                     <Badge
                       variant={
                         detailData.verdict === 'pass'
@@ -535,12 +560,16 @@ export function KYCDashboard() {
                     </Badge>
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground'>Status</p>
+                    <p className='text-sm font-medium text-muted-foreground'>
+                      Status
+                    </p>
                     <StatusBadge status={detailData.status} />
                   </div>
                   {detailData.reference && (
                     <div>
-                      <p className='text-sm font-medium text-muted-foreground'>Reference</p>
+                      <p className='text-sm font-medium text-muted-foreground'>
+                        Reference
+                      </p>
                       <p className='text-sm'>{detailData.reference}</p>
                     </div>
                   )}
@@ -548,7 +577,9 @@ export function KYCDashboard() {
 
                 {detailData.badges && detailData.badges.length > 0 && (
                   <div>
-                    <p className='text-sm font-medium text-muted-foreground mb-2'>Badges</p>
+                    <p className='mb-2 text-sm font-medium text-muted-foreground'>
+                      Badges
+                    </p>
                     <div className='flex flex-wrap gap-2'>
                       {detailData.badges.map((badge) => (
                         <Badge key={badge} variant='outline'>
@@ -559,19 +590,25 @@ export function KYCDashboard() {
                   </div>
                 )}
 
-                {detailData.signals && Object.keys(detailData.signals).length > 0 && (
-                  <div>
-                    <p className='text-sm font-medium text-muted-foreground mb-2'>Signals</p>
-                    <div className='rounded-md border p-3'>
-                      <pre className='text-xs overflow-auto'>
-                        {JSON.stringify(detailData.signals, null, 2)}
-                      </pre>
+                {detailData.signals &&
+                  Object.keys(detailData.signals).length > 0 && (
+                    <div>
+                      <p className='mb-2 text-sm font-medium text-muted-foreground'>
+                        Signals
+                      </p>
+                      <div className='rounded-md border p-3'>
+                        <pre className='overflow-auto text-xs'>
+                          {JSON.stringify(detailData.signals, null, 2)}
+                        </pre>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Face Verification Section */}
-                <FaceVerificationSection caseId={Number(detailData.id)} caseData={detailData} />
+                <FaceVerificationSection
+                  caseId={Number(detailData.id)}
+                  caseData={detailData}
+                />
 
                 <div className='flex gap-2 pt-4'>
                   <Button
@@ -619,53 +656,78 @@ export function KYCDashboard() {
                 </div>
               </div>
             ) : null}
-           </SheetContent>
+          </SheetContent>
         </Sheet>
       </Main>
     </>
   )
 }
 
-function FaceVerificationSection({ caseId, caseData }: { caseId: number; caseData: any }) {
+function FaceVerificationSection({
+  caseId,
+  caseData,
+}: {
+  caseId: number
+  caseData: {
+    signals?: {
+      face_match?: boolean
+      face_score?: number
+      liveness?: { is_live?: boolean }
+      capture_device?: string
+    }
+  } | null
+}) {
   const hasFaceData = caseData?.signals?.face_match !== undefined
 
   return (
     <div className='space-y-3'>
-      <p className='text-sm font-medium text-muted-foreground'>Face Verification</p>
+      <p className='text-sm font-medium text-muted-foreground'>
+        Face Verification
+      </p>
 
       {hasFaceData ? (
-        <div className='rounded-md border p-3 space-y-2 text-sm'>
+        <div className='space-y-2 rounded-md border p-3 text-sm'>
           <div className='flex justify-between'>
             <span>Face Match</span>
-            <Badge variant={caseData.signals.face_match ? 'default' : 'destructive'}>
-              {caseData.signals.face_match ? 'Matched' : 'Not Matched'}
+            <Badge
+              variant={
+                caseData?.signals?.face_match ? 'default' : 'destructive'
+              }
+            >
+              {caseData?.signals?.face_match ? 'Matched' : 'Not Matched'}
             </Badge>
           </div>
-          {caseData.signals.face_score !== undefined && (
+          {caseData?.signals?.face_score !== undefined && (
             <div className='flex justify-between'>
               <span>Face Score</span>
-              <span>{(caseData.signals.face_score * 100).toFixed(0)}%</span>
+              <span>{(caseData?.signals?.face_score * 100).toFixed(0)}%</span>
             </div>
           )}
-          {caseData.signals.liveness && (
+          {caseData?.signals?.liveness && (
             <div className='flex justify-between'>
               <span>Liveness</span>
-              <Badge variant={caseData.signals.liveness.is_live ? 'default' : 'destructive'}>
-                {caseData.signals.liveness.is_live ? 'Live' : 'Spoof'}
+              <Badge
+                variant={
+                  caseData?.signals?.liveness.is_live
+                    ? 'default'
+                    : 'destructive'
+                }
+              >
+                {caseData?.signals?.liveness.is_live ? 'Live' : 'Spoof'}
               </Badge>
             </div>
           )}
-          {caseData.signals.capture_device && (
+          {caseData?.signals?.capture_device && (
             <div className='flex justify-between'>
               <span>Device</span>
-              <span>{caseData.signals.capture_device}</span>
+              <span>{caseData?.signals?.capture_device}</span>
             </div>
           )}
         </div>
       ) : (
         <div className='text-sm text-muted-foreground'>
-          No face verification yet. The caller app will trigger this via the
-          API endpoint{' '}
+          No face verification yet. The caller app will trigger this via the API
+          endpoint{' '}
           <code className='rounded bg-muted px-1 py-0.5 text-xs'>
             /api/kyc/cases/{caseId}/face-session
           </code>

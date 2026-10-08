@@ -1,6 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { NumberTicker } from '@/components/ui/number-ticker'
 
 interface OverviewData {
@@ -32,7 +38,10 @@ export function Analytics() {
     },
   })
 
-  const { data: risk } = useQuery<{ distribution: Record<string, number>; total: number }>({
+  const { data: risk } = useQuery<{
+    distribution: Record<string, number>
+    total: number
+  }>({
     queryKey: ['analytics-risk'],
     queryFn: async () => {
       return apiFetch('/analytics/risk-distribution')
@@ -59,7 +68,10 @@ export function Analytics() {
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold'>
-              <NumberTicker value={overview?.average_score ?? 0} decimalPlaces={1} />
+              <NumberTicker
+                value={overview?.average_score ?? 0}
+                decimalPlaces={1}
+              />
             </div>
             <p className='text-xs text-muted-foreground'>out of 100</p>
           </CardContent>
@@ -71,21 +83,34 @@ export function Analytics() {
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold text-green-600'>
-              <NumberTicker value={overview?.approval_rate ?? 0} decimalPlaces={1} />%
+              <NumberTicker
+                value={overview?.approval_rate ?? 0}
+                decimalPlaces={1}
+              />
+              %
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>SLA Compliance</CardTitle>
+            <CardTitle className='text-sm font-medium'>
+              SLA Compliance
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div
               className='text-2xl font-bold'
-              style={{ color: (sla?.compliance_rate ?? 0) >= 90 ? '#22c55e' : '#eab308' }}
+              style={{
+                color:
+                  (sla?.compliance_rate ?? 0) >= 90 ? '#22c55e' : '#eab308',
+              }}
             >
-              <NumberTicker value={sla?.compliance_rate ?? 0} decimalPlaces={1} />%
+              <NumberTicker
+                value={sla?.compliance_rate ?? 0}
+                decimalPlaces={1}
+              />
+              %
             </div>
             <p className='text-xs text-muted-foreground'>
               {sla?.on_track ?? 0} on track, {sla?.overdue ?? 0} overdue
@@ -106,13 +131,17 @@ export function Analytics() {
                 <div key={status} className='flex items-center justify-between'>
                   <span className='text-sm capitalize'>{status}</span>
                   <div className='flex items-center gap-2'>
-                    <div className='h-2 w-24 rounded-full bg-muted overflow-hidden'>
+                    <div className='h-2 w-24 overflow-hidden rounded-full bg-muted'>
                       <div
                         className='h-full bg-primary'
-                        style={{ width: `${(count / Math.max(overview.total_cases, 1)) * 100}%` }}
+                        style={{
+                          width: `${(count / Math.max(overview.total_cases, 1)) * 100}%`,
+                        }}
                       />
                     </div>
-                    <span className='text-sm font-medium w-8 text-right'>{count}</span>
+                    <span className='w-8 text-right text-sm font-medium'>
+                      {count}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -122,7 +151,9 @@ export function Analytics() {
         <Card>
           <CardHeader>
             <CardTitle>Risk Distribution</CardTitle>
-            <CardDescription>Score distribution across all cases</CardDescription>
+            <CardDescription>
+              Score distribution across all cases
+            </CardDescription>
           </CardHeader>
           <CardContent className='space-y-3'>
             {risk &&
@@ -130,13 +161,17 @@ export function Analytics() {
                 <div key={range} className='flex items-center justify-between'>
                   <span className='text-sm'>{range}</span>
                   <div className='flex items-center gap-2'>
-                    <div className='h-2 w-24 rounded-full bg-muted overflow-hidden'>
+                    <div className='h-2 w-24 overflow-hidden rounded-full bg-muted'>
                       <div
                         className='h-full bg-primary'
-                        style={{ width: `${(count / Math.max(risk.total, 1)) * 100}%` }}
+                        style={{
+                          width: `${(count / Math.max(risk.total, 1)) * 100}%`,
+                        }}
                       />
                     </div>
-                    <span className='text-sm font-medium w-8 text-right'>{count}</span>
+                    <span className='w-8 text-right text-sm font-medium'>
+                      {count}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -174,7 +209,10 @@ export function Analytics() {
           <CardContent className='space-y-3'>
             {overview &&
               Object.entries(overview.verdicts).map(([verdict, count]) => (
-                <div key={verdict} className='flex items-center justify-between'>
+                <div
+                  key={verdict}
+                  className='flex items-center justify-between'
+                >
                   <span className='text-sm capitalize'>{verdict}</span>
                   <span className='text-sm font-medium'>
                     <NumberTicker value={count} />
