@@ -15,7 +15,7 @@ import os
 import random
 import threading
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -410,7 +410,7 @@ def create_case(image_path: str, *, applicant: str = "",
         doc_type=doc_type,
         country="Unknown",
         filename=filename or os.path.basename(image_path),
-        submitted_at=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        submitted_at=datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         status=initial,
         score=res["score"],
         verdict=verdict,

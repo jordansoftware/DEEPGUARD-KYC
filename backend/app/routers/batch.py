@@ -12,10 +12,10 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from sqlalchemy.orm import Session
 
+from app import kyc
 from app.config import get_settings
 from app.db import get_db
 from app.models import BatchJob, Client
-from app import kyc
 from app.security import current_client
 
 logger = logging.getLogger("deepguard.batch")

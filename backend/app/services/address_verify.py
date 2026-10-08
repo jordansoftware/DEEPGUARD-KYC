@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import re
 
-from PIL import Image
-
 
 def _extract_address_fields(ocr_text: str) -> dict:
     """Extract address components from OCR text using keyword patterns."""

@@ -8,7 +8,6 @@ the platform remains usable in demo.
 from __future__ import annotations
 
 import re
-from functools import lru_cache
 
 _ocr_model = None
 _doctr_ok: bool | None = None
@@ -20,7 +19,6 @@ def _load_doctr():
     if _doctr_ok is not None:
         return _ocr_model
     try:
-        from doctr.io import DocumentFile
         from doctr.models import ocr_predictor
 
         _ocr_model = ocr_predictor(pretrained=True)

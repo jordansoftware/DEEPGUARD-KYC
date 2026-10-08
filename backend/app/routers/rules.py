@@ -10,7 +10,7 @@ from app.db import get_db
 from app.models import Client, ClientRules
 from app.schemas import RulesUpdate
 from app.security import current_client
-from app.workflow import WEIGHTS, DEFECT_WEIGHTS
+from app.workflow import DEFECT_WEIGHTS, WEIGHTS
 
 router = APIRouter(prefix="/api/rules", tags=["rules"])
 settings = get_settings()

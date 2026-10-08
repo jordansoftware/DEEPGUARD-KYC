@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
@@ -62,7 +63,7 @@ def _generate_kyc_pdf(case: kyc.KycCase) -> str:
         y -= 5 * mm
     y -= 8 * mm
     c.setFont("Helvetica", 9)
-    generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    generated = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
     c.drawString(20 * mm, y, f"Generated on {generated}")
     c.save()
     return path
@@ -86,13 +87,13 @@ def list_reports(
     client: Client = Depends(current_client),
 ) -> list[ReportOut]:
     reports = []
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     for case in sorted(kyc._store.values(), key=lambda c: c.id):
         pdf_path = os.path.join(PDF_DIR, f"{case.id}_report.pdf")
         generated = now
         if os.path.exists(pdf_path):
             generated = datetime.fromtimestamp(
-                os.path.getmtime(pdf_path), tz=timezone.utc
+                os.path.getmtime(pdf_path), tz=UTC
             ).strftime("%Y-%m-%dT%H:%M:%SZ")
         reports.append(ReportOut(
             case_id=case.id, filename=f"{case.id}_report.pdf",

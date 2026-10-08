@@ -15,17 +15,17 @@ from slowapi.util import get_remote_address
 
 from app import kyc, signals
 from app.config import get_settings
-from app.db import get_db, init_db
+from app.db import init_db
 from app.routers import (
-    clients,
-    webhooks,
-    screening,
-    reports,
-    batch,
-    rules,
     analytics,
+    batch,
+    clients,
     export,
     plugins,
+    reports,
+    rules,
+    screening,
+    webhooks,
 )
 from app.schemas import DecisionIn
 from app.security import current_client

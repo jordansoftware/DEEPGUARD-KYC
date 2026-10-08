@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import csv
-import io
 import datetime as dt
+import io
 import logging
-from typing import Generator
+from collections.abc import Generator
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse

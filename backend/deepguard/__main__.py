@@ -10,9 +10,9 @@ Usage:
 
 from __future__ import annotations
 
-import sys
-import json
 import argparse
+import json
+import sys
 
 
 def cmd_analyze(args):
@@ -65,6 +65,7 @@ def cmd_ocr(args):
 
 def cmd_serve(args):
     import uvicorn
+
     from deepguard.api import app
     uvicorn.run(app, host="0.0.0.0", port=args.port, reload=args.reload)
 

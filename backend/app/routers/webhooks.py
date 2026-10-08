@@ -12,7 +12,7 @@ import json
 import logging
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from urllib.parse import urlparse
 
 import httpx
@@ -31,7 +31,7 @@ router = APIRouter(prefix="/api/webhooks", tags=["webhooks"])
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _is_safe_url(url: str) -> bool:

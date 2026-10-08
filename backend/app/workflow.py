@@ -164,7 +164,7 @@ def decide(
         meta={
             "sla_hours": SLA_HOURS,
             "sla_deadline": (
-                dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=SLA_HOURS)
+                dt.datetime.now(dt.UTC) + dt.timedelta(hours=SLA_HOURS)
             ).isoformat(),
             "weights": WEIGHTS,
         },

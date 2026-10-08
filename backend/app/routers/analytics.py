@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import datetime as dt
-from collections import Counter
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models import Case, Client, Document, DecisionLog, CaseStatus
+from app.models import Case, CaseStatus, Client, Document
 from app.security import current_client
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
@@ -66,7 +65,7 @@ def get_trends(
     client: Client = Depends(current_client),
 ):
     """Get case creation trends over the last N days."""
-    cutoff = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)
+    cutoff = dt.datetime.now(dt.UTC) - dt.timedelta(days=days)
     cases = (
         db.query(Case)
         .filter(Case.client_id == client.id, Case.created_at >= cutoff)
@@ -164,7 +163,7 @@ def get_sla_compliance(
     client: Client = Depends(current_client),
 ):
     """Get SLA compliance metrics."""
-    now = dt.datetime.now(dt.timezone.utc)
+    now = dt.datetime.now(dt.UTC)
     cases = (
         db.query(Case)
         .filter(Case.client_id == client.id, Case.status == CaseStatus.review)

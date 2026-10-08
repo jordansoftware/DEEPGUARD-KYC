@@ -9,16 +9,13 @@ Security:
 
 from __future__ import annotations
 
-import asyncio
 import hmac
 import io
 import logging
 import os
-import re
 import threading
 import time
-from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 import qrcode
@@ -83,8 +80,8 @@ def _create_token(case_id: int) -> str:
     """Create a short-lived JWT token for face verification."""
     payload = {
         "case_id": case_id,
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=settings.face_session_ttl_minutes),
-        "iat": datetime.now(timezone.utc),
+        "exp": datetime.now(UTC) + timedelta(minutes=settings.face_session_ttl_minutes),
+        "iat": datetime.now(UTC),
         "type": "face_verification",
         "iss": "deepguard",
         "aud": "mobile-face-verify",
@@ -171,7 +168,7 @@ def create_face_session(case_id: int) -> dict:
         "token": token,
         "qr_code": qr_data_url,
         "qr_url": verify_url,
-        "expires_at": datetime.fromtimestamp(now + ttl_seconds, tz=timezone.utc).isoformat(),
+        "expires_at": datetime.fromtimestamp(now + ttl_seconds, tz=UTC).isoformat(),
         "ttl_minutes": settings.face_session_ttl_minutes,
     }
 
@@ -267,7 +264,7 @@ def get_session_status(token: str) -> dict | None:
         return {
             "status": session["status"],
             "case_id": session["case_id"],
-            "expires_at": datetime.fromtimestamp(session["expires_at"], tz=timezone.utc).isoformat(),
+            "expires_at": datetime.fromtimestamp(session["expires_at"], tz=UTC).isoformat(),
             "face_result": session.get("face_result"),
             "liveness_result": session.get("liveness_result"),
         }
